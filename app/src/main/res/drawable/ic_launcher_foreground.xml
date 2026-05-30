@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Elegant Gold Geometric Starburst Background / Mandala Frame -->
+    <path
+        android:fillColor="#F3E7C4"
+        android:pathData="M54,18 L63,33 L79,28 L74,44 L89,53 L73,58 L70,75 L54,67 L38,75 L35,58 L19,53 L34,44 L29,28 L45,33 Z" />
+    <!-- Main Open Scriptures Book Silhouette in Pristine White -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M22,34 C22,34 33,28 54,34 C75,28 86,34 86,34 L86,72 C86,72 75,66 54,72 C33,66 22,72 22,72 Z" />
+    <!-- Inner Book Golden Ridge Divider -->
+    <path
+        android:fillColor="#F3E7C4"
+        android:pathData="M52,34 h4 v38 h-4 Z" />
+    <!-- Script Lines indicating text pages -->
+    <path
+        android:fillColor="#E6D3A0"
+        android:pathData="M28,42 h16 v2 h-16 Z M28,48 h16 v2 h-16 Z M28,54 h14 v2 h-14 Z M28,60 h10 v2 h-10 Z M64,42 h16 v2 h-16 Z M64,48 h16 v2 h-16 Z M66,54 h14 v2 h-14 Z M70,60 h10 v2 h-10 Z" />
+</vector>

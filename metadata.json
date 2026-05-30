@@ -1,0 +1,6 @@
+{
+  "name": "Quran Study & Tafsir",
+  "description": "دراسة القرآن الكريم والتفسير والإعراب والمصحف التفاعلي مع خيارات التفصيل وكلمة تلو كلمة",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
