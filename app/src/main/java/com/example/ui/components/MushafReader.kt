@@ -162,50 +162,37 @@ fun MushafReaderScreen(
                                     )
                                 }
 
-                                // Display Verses in continuous text format
-                                Column(
+                                // Display Verses in continuous flowing text format (True continuous Mushaf layout)
+                                @OptIn(ExperimentalLayoutApi::class)
+                                FlowRow(
                                     modifier = Modifier.fillMaxWidth(),
-                                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                                    horizontalAlignment = Alignment.End
+                                    horizontalArrangement = Arrangement.End,
+                                    verticalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
                                     ayahs.forEach { ayah ->
                                         val isBookmarked = bookmarks.contains(ayah.id)
                                         val isPlaying = playingAyahId == ayah.id
                                         Box(
                                             modifier = Modifier
-                                                .fillMaxWidth()
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(
-                                                    if (isPlaying) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-                                                    else if (isBookmarked) MaterialTheme.colorScheme.secondary.copy(alpha = 0.08f)
+                                                    if (isPlaying) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                                                    else if (isBookmarked) MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
                                                     else Color.Transparent
                                                 )
                                                 .clickable { viewModel.selectAyah(ayah) }
-                                                .padding(8.dp)
+                                                .padding(horizontal = 6.dp, vertical = 2.dp)
                                         ) {
-                                            Column(modifier = Modifier.fillMaxWidth()) {
-                                                Text(
-                                                    text = "${ayah.textAr} ﴿${ayah.verseNumber}﴾",
-                                                    style = MaterialTheme.typography.headlineSmall.copy(
-                                                        fontWeight = FontWeight.Bold,
-                                                        lineHeight = 44.sp,
-                                                        textAlign = TextAlign.Right
-                                                    ),
-                                                    fontFamily = FontFamily.Serif,
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                    modifier = Modifier.fillMaxWidth()
-                                                )
-                                                if (ayah.translation.isNotEmpty()) {
-                                                    Spacer(modifier = Modifier.height(6.dp))
-                                                    Text(
-                                                        text = ayah.translation,
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        textAlign = TextAlign.Left,
-                                                        modifier = Modifier.fillMaxWidth()
-                                                    )
-                                                }
-                                            }
+                                            Text(
+                                                text = "${ayah.textAr} ﴿${ayah.verseNumber}﴾",
+                                                style = MaterialTheme.typography.headlineSmall.copy(
+                                                    fontWeight = FontWeight.Bold,
+                                                    lineHeight = 48.sp,
+                                                    textAlign = TextAlign.Right
+                                                ),
+                                                fontFamily = FontFamily.Serif,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
                                         }
                                     }
                                 }

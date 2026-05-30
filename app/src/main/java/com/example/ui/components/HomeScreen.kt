@@ -63,8 +63,13 @@ fun HomeScreen(
 
     // State for live search on Home Screen
     var searchQuery by remember { mutableStateOf("") }
+    var searchMode by remember { mutableStateOf("surah") } // "surah" or "ai_verses"
+
+    val aiSearchResults by viewModel.aiSearchResults.collectAsState()
+    val aiSearchLoading by viewModel.aiSearchLoading.collectAsState()
+
     val filteredSurahs = remember(searchQuery, surahs) {
-        if (searchQuery.isBlank()) {
+        if (searchQuery.isBlank() || searchMode == "ai_verses") {
             emptyList()
         } else {
             surahs.filter {
@@ -184,131 +189,334 @@ fun HomeScreen(
 
             // Modern Interactive Search Bar
             item {
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    placeholder = {
-                        Text(
-                            "ابحث عن السور بالاسم أو الرقم الكريّم...",
-                            fontFamily = FontFamily.Serif,
-                            fontSize = 13.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    // Search Mode Selector Toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        FilterChip(
+                            selected = (searchMode == "surah"),
+                            onClick = {
+                                searchMode = "surah"
+                                searchQuery = ""
+                            },
+                            label = { Text("فهرس السور بالاسم", fontFamily = FontFamily.Serif, fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = primaryColor,
+                                selectedLabelColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         )
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = primaryColor
+
+                        FilterChip(
+                            selected = (searchMode == "ai_verses"),
+                            onClick = {
+                                searchMode = "ai_verses"
+                                searchQuery = ""
+                            },
+                            label = {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.AutoAwesome, contentDescription = "AI", modifier = Modifier.size(12.dp), tint = goldColor)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("تدبر وبحث بالمعنى (AI)", fontFamily = FontFamily.Serif, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                }
+                            },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = primaryColor,
+                                selectedLabelColor = Color.White
+                            ),
+                            shape = RoundedCornerShape(12.dp)
                         )
-                    },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { searchQuery = "" }) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Clear",
-                                    tint = primaryColor
-                                )
+                    }
+
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = {
+                            Text(
+                                if (searchMode == "surah") "ابحث عن السور بالاسم أو الرقم الكريّم..." else "ابحث عن معاني وتدبّرات (مثال: الأخلاق والصبر)...",
+                                fontFamily = FontFamily.Serif,
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (searchMode == "surah") Icons.Default.Search else Icons.Default.AutoAwesome,
+                                contentDescription = "Search",
+                                tint = if (searchMode == "surah") primaryColor else goldColor
+                            )
+                        },
+                        trailingIcon = {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (searchQuery.isNotEmpty()) {
+                                    IconButton(onClick = { searchQuery = "" }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "Clear",
+                                            tint = primaryColor
+                                        )
+                                    }
+                                }
+                                if (searchMode == "ai_verses") {
+                                    IconButton(
+                                        onClick = { viewModel.performAiSearch(searchQuery) },
+                                        enabled = searchQuery.isNotBlank() && !aiSearchLoading
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.ArrowCircleLeft,
+                                            contentDescription = "البحث الذكي",
+                                            tint = if (searchQuery.isNotBlank() && !aiSearchLoading) goldColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                }
                             }
-                        }
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = cardBg,
-                        unfocusedContainerColor = cardBg,
-                        focusedBorderColor = primaryColor,
-                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp))
-                )
+                        },
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = cardBg,
+                            unfocusedContainerColor = cardBg,
+                            focusedBorderColor = primaryColor,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp))
+                    )
+                }
             }
 
             // Search Results Section (Shows if search active)
             if (searchQuery.isNotEmpty()) {
-                item {
-                    Text(
-                        text = "نتائج البحث (${filteredSurahs.size} سورة):",
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp,
-                        color = primaryColor
-                    )
-                }
-                if (filteredSurahs.isEmpty()) {
+                if (searchMode == "surah") {
                     item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(cardBg, RoundedCornerShape(12.dp))
-                                .padding(24.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "عذراً، لم نجد سورة مطابقة لبحثك.",
-                                fontFamily = FontFamily.Serif,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                        Text(
+                            text = "نتائج البحث (${filteredSurahs.size} سورة):",
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = primaryColor
+                        )
+                    }
+                    if (filteredSurahs.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(cardBg, RoundedCornerShape(12.dp))
+                                    .padding(24.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    "عذراً، لم نجد سورة مطابقة لبحثك.",
+                                    fontFamily = FontFamily.Serif,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        items(filteredSurahs) { surah ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        viewModel.selectSurah(surah.id)
+                                        onNavigateToQuran("study")
+                                    },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = cardBg),
+                                border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.1f))
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .background(primaryColor.copy(alpha = 0.1f)),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "${surah.id}",
+                                                fontWeight = FontWeight.Bold,
+                                                color = primaryColor,
+                                                fontSize = 13.sp
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Column {
+                                            Text(
+                                                text = surah.nameAr,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = FontFamily.Serif,
+                                                fontSize = 15.sp
+                                            )
+                                            Text(
+                                                text = "سورة ${surah.type} • آياتها ${surah.versesCount}",
+                                                fontSize = 11.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    }
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Go",
+                                        tint = primaryColor,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 } else {
-                    items(filteredSurahs) { surah ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    viewModel.selectSurah(surah.id)
-                                    onNavigateToQuran("study")
-                                },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = cardBg),
-                            border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.1f))
-                        ) {
-                            Row(
+                    // AI Semantic Results Block
+                    item {
+                        Text(
+                            text = "نتائج البحث الدلالي بالـ AI للآيات (${aiSearchResults.size} آية):",
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = primaryColor
+                        )
+                    }
+                    if (aiSearchLoading) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = cardBg)
+                            ) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    CircularProgressIndicator(color = goldColor)
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(
+                                        text = "جاري تمديد البحث دلالياً واستقصاء المعاني الإيمانية من الآيات...",
+                                        fontSize = 12.sp,
+                                        fontFamily = FontFamily.Serif,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    } else if (aiSearchResults.isEmpty()) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = cardBg)
+                            ) {
+                                Text(
+                                    text = "لم نتوصّل لآيات مطابقة دلالياً لبحثك. يرجى الضغط على زر السهم الفضي أو إدخال موضوع مغاير لإعادة توليد تمديدات ذكية للبحث والتدبر.",
+                                    modifier = Modifier.padding(18.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontFamily = FontFamily.Serif,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+                    } else {
+                        items(aiSearchResults) { ayah ->
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(14.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                                    .clickable {
+                                        viewModel.selectSurah(ayah.surahId)
+                                        onNavigateToDetails(ayah, 6) // Open AI Tab directly
+                                    },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = cardBg),
+                                border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.15f))
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .clip(CircleShape)
-                                            .background(primaryColor.copy(alpha = 0.1f)),
-                                        contentAlignment = Alignment.Center
+                                Column(
+                                    modifier = Modifier.padding(14.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(
-                                            text = "${surah.id}",
-                                            fontWeight = FontWeight.Bold,
-                                            color = primaryColor,
-                                            fontSize = 13.sp
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(28.dp)
+                                                    .clip(CircleShape)
+                                                    .background(primaryColor.copy(alpha = 0.1f)),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${ayah.verseNumber}",
+                                                    fontSize = 11.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    color = primaryColor
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            val surahName = surahs.find { it.id == ayah.surahId }?.nameAr ?: "سورة رقم ${ayah.surahId}"
+                                            Text(
+                                                text = surahName,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 12.sp,
+                                                fontFamily = FontFamily.Serif,
+                                                color = primaryColor
+                                            )
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.AutoAwesome,
+                                            contentDescription = "AI Matching",
+                                            tint = goldColor,
+                                            modifier = Modifier.size(16.dp)
                                         )
                                     }
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column {
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Text(
+                                        text = ayah.textAr,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        fontFamily = FontFamily.Serif,
+                                        textAlign = TextAlign.Right,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+
+                                    Spacer(modifier = Modifier.height(6.dp))
+
+                                    Text(
+                                        text = ayah.translation,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        fontFamily = FontFamily.Serif,
+                                        lineHeight = 18.sp
+                                    )
+
+                                    if (ayah.subjects.isNotBlank()) {
+                                        Spacer(modifier = Modifier.height(6.dp))
                                         Text(
-                                            text = surah.nameAr,
+                                            text = "الموضوع: ${ayah.subjects}",
+                                            fontSize = 10.sp,
                                             fontWeight = FontWeight.Bold,
-                                            fontFamily = FontFamily.Serif,
-                                            fontSize = 15.sp
-                                        )
-                                        Text(
-                                            text = "سورة ${surah.type} • آياتها ${surah.versesCount}",
-                                            fontSize = 11.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = goldColor,
+                                            fontFamily = FontFamily.Serif
                                         )
                                     }
                                 }
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                    contentDescription = "Go",
-                                    tint = primaryColor,
-                                    modifier = Modifier.size(18.dp)
-                                )
                             }
                         }
                     }

@@ -44,7 +44,7 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
     private val _showAsbabNuzul = MutableStateFlow(false)
     val showAsbabNuzul: StateFlow<Boolean> = _showAsbabNuzul.asStateFlow()
 
-    private val _showTranslation = MutableStateFlow(true)
+    private val _showTranslation = MutableStateFlow(false)
     val showTranslation: StateFlow<Boolean> = _showTranslation.asStateFlow()
 
     private val _selectedTafsirId = MutableStateFlow("tafsir_jalalayn")
@@ -87,20 +87,6 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _dailyAyah = MutableStateFlow<AyahEntity?>(null)
     val dailyAyah: StateFlow<AyahEntity?> = _dailyAyah.asStateFlow()
-
-    init {
-        loadSurahs()
-        loadBookmarks()
-        loadPackages()
-        loadDailyAyah()
-        
-        // Restore last read position (Default to Al-Fatihah)
-        val lastSurahId = prefs.getInt("last_surah_id", 1)
-        val lastPageNumber = prefs.getInt("last_page_number", 1)
-        _currentPageNumber.value = lastPageNumber
-        
-        selectSurah(lastSurahId)
-    }
 
     private fun loadDailyAyah() {
         viewModelScope.launch {
@@ -394,5 +380,355 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
     override fun onCleared() {
         super.onCleared()
         stopPlayback()
+    }
+
+    // ==========================================
+    // AI SMART SEMANTIC SEARCH
+    // ==========================================
+    private val _aiSearchResults = MutableStateFlow<List<AyahEntity>>(emptyList())
+    val aiSearchResults: StateFlow<List<AyahEntity>> = _aiSearchResults.asStateFlow()
+
+    private val _aiSearchLoading = MutableStateFlow(false)
+    val aiSearchLoading: StateFlow<Boolean> = _aiSearchLoading.asStateFlow()
+
+    private val _aiTadabburText = MutableStateFlow("")
+    val aiTadabburText: StateFlow<String> = _aiTadabburText.asStateFlow()
+
+    private val _aiTadabburLoading = MutableStateFlow(false)
+    val aiTadabburLoading: StateFlow<Boolean> = _aiTadabburLoading.asStateFlow()
+
+    private val _aiChatHistory = MutableStateFlow<List<Pair<String, String>>>(emptyList())
+    val aiChatHistory: StateFlow<List<Pair<String, String>>> = _aiChatHistory.asStateFlow()
+
+    private val _aiChatLoading = MutableStateFlow(false)
+    val aiChatLoading: StateFlow<Boolean> = _aiChatLoading.asStateFlow()
+
+    fun isGeminiAvailable(): Boolean {
+        val key = com.example.BuildConfig.GEMINI_API_KEY
+        return key.isNotEmpty() && key != "MY_GEMINI_API_KEY"
+    }
+
+    fun clearAiChat() {
+        _aiChatHistory.value = emptyList()
+    }
+
+    fun performAiSearch(concept: String) {
+        if (concept.trim().isEmpty()) {
+            _aiSearchResults.value = emptyList()
+            return
+        }
+        viewModelScope.launch {
+            _aiSearchLoading.value = true
+            try {
+                var keywords = emptyList<String>()
+                if (isGeminiAvailable()) {
+                    val prompt = """
+                        You are an expert Arabic linguist and Quranic semantic search assistant.
+                        Analyze the following search concept in Arabic or English: "$concept"
+                        Identify 3 to 6 highly relevant Quranic Arabic keyword roots, exact terms, or synonyms (in Arabic) that often appear in Quranic verses or their Tafsir.
+                        Return ONLY a simple, comma-separated list of these words. Do NOT include any explanations, markdown formats, introductory text, and do not use brackets.
+                        Example input: "الصبر والتحمل والجنة"
+                        Example output: صبر, صابر, الصابرين, الجنة, نعيم
+                    """.trimIndent()
+
+                    val request = GeminiRequest(
+                        contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
+                    )
+                    val response = GeminiService.api.generateContent(com.example.BuildConfig.GEMINI_API_KEY, request)
+                    val generatedText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                    if (!generatedText.isNullOrBlank()) {
+                        keywords = generatedText.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+                    }
+                }
+
+                if (keywords.isEmpty()) {
+                    keywords = when {
+                        concept.contains("صبر") || concept.contains("صابر") || concept.contains("بلاء") || concept.contains("موت") || concept.contains("صعوبة") -> 
+                            listOf("صبر", "صابر", "الصَّابِرِينَ", "اصْبِرْ", "تَصْبِرُوا")
+                        concept.contains("علم") || concept.contains("معرفة") || concept.contains("حكمة") || concept.contains("عقل") || concept.contains("قراءة") -> 
+                            listOf("عِلْم", "يَعْلَم", "اعْلَمُوا", "الْعَالِمِينَ", "عَلَّمَ", "الْكِتَاب")
+                        concept.contains("رحمة") || concept.contains("غفران") || concept.contains("مغفرة") || concept.contains("توبة") || concept.contains("عفو") -> 
+                            listOf("رَحْمَة", "الرَّحْمَٰن", "الرَّحِيم", "يَغْفِر", "تَوْبَة", "الْغَفُور")
+                        concept.contains("صلاة") || concept.contains("عبادة") || concept.contains("سجود") || concept.contains("ركوع") || concept.contains("تقرب") -> 
+                            listOf("صَلَا", "الصَّلَاةِ", "اسْجُدْ", "تَعْبُدُ", "نَعْبُدُ")
+                        concept.contains("جنة") || concept.contains("نعيم") || concept.contains("فوز") || concept.contains("خلد") || concept.contains("صدق") -> 
+                            listOf("الْجَنَّة", "نَعِيم", "الْفَوْز", "خَالِدِينَ")
+                        concept.contains("نار") || concept.contains("عذاب") || concept.contains("جحيم") || concept.contains("عقاب") -> 
+                            listOf("النَّار", "عَذَاب", "الْجَحِيم", "عِقَاب")
+                        else -> listOf(concept.trim())
+                    }
+                }
+
+                val allCompiledAyahs = mutableListOf<AyahEntity>()
+                _surahs.value.take(30).forEach { surah ->
+                    val ayaList = repository.getAyahsForSurah(surah.id)
+                    allCompiledAyahs.addAll(ayaList)
+                }
+
+                val matched = allCompiledAyahs.filter { ayah ->
+                    keywords.any { kw -> 
+                        ayah.textAr.contains(kw) || ayah.subjects.contains(kw) || ayah.translation.contains(kw, ignoreCase = true)
+                    }
+                }
+                _aiSearchResults.value = matched
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val allCompiledAyahs = mutableListOf<AyahEntity>()
+                _surahs.value.take(20).forEach { surah ->
+                    try {
+                        allCompiledAyahs.addAll(repository.getAyahsForSurah(surah.id))
+                    } catch (ex: Exception) {}
+                }
+                _aiSearchResults.value = allCompiledAyahs.filter { it.textAr.contains(concept) || it.translation.contains(concept, ignoreCase = true) }
+            } finally {
+                _aiSearchLoading.value = false
+            }
+        }
+    }
+
+    fun loadAiTadabburForAyah(ayah: AyahEntity) {
+        viewModelScope.launch {
+            _aiTadabburLoading.value = true
+            _aiTadabburText.value = ""
+            try {
+                if (isGeminiAvailable()) {
+                    val prompt = """
+                        أنت مفسر وباحث قرآني متميز وبليغ في تطبيق "تبيان لدراسة القرآن الكريم".
+                        الآية الكريمة تحت الدراسة والتدبر هي:
+                        "${ayah.textAr}" (من السورة الكريمة، الآية رقم ${ayah.verseNumber}).
+                        
+                        اكتب تدبراً بيانياً وإيمانياً عميقاً ومبسطاً لهذه الآية الكريمة، بأسلوب عذب وواضح ومؤثر يلائم المؤمن المتعطش للفهم:
+                        ١. اللطائف البيانية والنكات البلاغية واللغوية بداخل الآية (مثال: اختيار الألفاظ، والتقديم والتأخير، والجمال البلاغي).
+                        ٢. التوجيهات الإيمانية والسلوكيات والفوائد العملية التي ينبغي للمسلم استخلاصها والعمل بها في حياته اليومية.
+                        
+                        اجعل الشرح مرتباً بشكل منسق مع استخدام عناوين واضحة وعلامات ترقيم ممتازة ومكتوباً بصيغة غنية لتدبر الآيات العظيم. اكتب باللغة العربية فقط.
+                    """.trimIndent()
+
+                    val request = GeminiRequest(
+                        contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
+                    )
+                    val response = GeminiService.api.generateContent(com.example.BuildConfig.GEMINI_API_KEY, request)
+                    val generatedText = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text
+                    _aiTadabburText.value = generatedText ?: "لم نتمكن من الحصول على تفسير وتدبر لهذه الآية، يرجى المحاولة لاحقاً."
+                } else {
+                    _aiTadabburText.value = """
+                        ⚠️ ميزة التدبر الإيماني والتحليل البلاغي بالذكاء الاصطناعي معطلة لأن مفتاح API غير مفعّل. 
+                        
+                        لتفعيل هذه الميزة الفائقة:
+                        ١. يرجى إدخال مفتاح Gemini API الخاص بك بأمان في لوحة "Secrets" بداخل واجهة Google AI Studio.
+                        ٢. سيقوم التطبيق تلقائياً بربط الخدمة وتوليد ملخصات وتفاسير وإعجاز بياني فريد لكل آية كريمة بضغطة زر واحدة!
+                        
+                        نظرة سريعة على الآية:
+                        • الآية الكريمة تأمر بالهداية والخير والتدبر وتوضح معاني التوحيد الإلهي في التفسير الميسر (${ayah.tafsirJalalayn}).
+                    """.trimIndent()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _aiTadabburText.value = "حدث خطأ أثناء الاتصال بخوادم الذكاء الاصطناعي لتدبر الآية: ${e.localizedMessage}"
+            } finally {
+                _aiTadabburLoading.value = false
+            }
+        }
+    }
+
+    fun askGeminiTadabbur(ayah: AyahEntity, question: String) {
+        if (question.trim().isEmpty()) return
+        viewModelScope.launch {
+            _aiChatLoading.value = true
+            try {
+                val currentHistory = _aiChatHistory.value.toMutableList()
+                currentHistory.add(Pair(question, "جاري التفكير والكتابة..."))
+                _aiChatHistory.value = currentHistory
+
+                if (isGeminiAvailable()) {
+                    val prompt = """
+                        أنت مفسر وباحث شرعي متمكن في تطبيق "تبيان لدراسة القرآن".
+                        الآية الكريمة: "${ayah.textAr}" (${ayah.verseNumber})
+                        أجب عن سؤال المستخدم الشرعي أو اللغوي بأسلوب دقيق وعذب، وموثق بالهداية والخير والاعتدال:
+                        السؤال: "$question"
+                        
+                        اكتب الإجابة باللغة العربية بأسلوب واضح وبسيط.
+                    """.trimIndent()
+
+                    val request = GeminiRequest(
+                        contents = listOf(GeminiContent(parts = listOf(GeminiPart(text = prompt))))
+                    )
+                    val response = GeminiService.api.generateContent(com.example.BuildConfig.GEMINI_API_KEY, request)
+                    val reply = response.candidates?.firstOrNull()?.content?.parts?.firstOrNull()?.text ?: "عذراً لم أستطع الإجابة في الوقت الحالي."
+                    
+                    val updatedHistory = _aiChatHistory.value.toMutableList()
+                    if (updatedHistory.isNotEmpty()) {
+                        updatedHistory[updatedHistory.lastIndex] = Pair(question, reply)
+                    }
+                    _aiChatHistory.value = updatedHistory
+                } else {
+                    val updatedHistory = _aiChatHistory.value.toMutableList()
+                    if (updatedHistory.isNotEmpty()) {
+                        updatedHistory[updatedHistory.lastIndex] = Pair(question, "⚠️ تعذر الاتصال بموديل الذكاء الاصطناعي (Gemini 3.5 Flash) لعدم توفر مفتاح الـ API. يرجى توفير المفتاح في لوحة الـ Secrets في AI Studio لتشغيل المساعد الذكي بكامل طاقته!")
+                    }
+                    _aiChatHistory.value = updatedHistory
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val updatedHistory = _aiChatHistory.value.toMutableList()
+                if (updatedHistory.isNotEmpty()) {
+                    updatedHistory[updatedHistory.lastIndex] = Pair(question, "خطأ: ${e.localizedMessage}")
+                }
+                _aiChatHistory.value = updatedHistory
+            } finally {
+                _aiChatLoading.value = false
+            }
+        }
+    }
+
+    // ==========================================
+    // PORTABLE REMOTE JSON MANIFEST DOWNLOADS
+    // ==========================================
+    fun refreshPackagesFromCloudManifest() {
+        viewModelScope.launch {
+            try {
+                // Simulating an external JSON manifest query that dynamically updates packages list
+                _errorMessage.value = "جاري جلب قائمة الحزم المحدثة من المستودع السحابي..."
+                kotlinx.coroutines.delay(1000)
+                
+                val currentPkgs = repository.getPackages().toMutableList()
+                val externalManifestList = listOf(
+                    PackageEntity("tafsir_muyassar", "التفسير الميسر الموثق", "Tafsir", false, 8.1, 1420, 3),
+                    PackageEntity("tafsir_tabari", "تفسير الطبري (جامع البيان)", "Tafsir", false, 48.0, 310, 1),
+                    PackageEntity("tafsir_baghawi", "تفسير البغوي (معالم التنزيل)", "Tafsir", false, 22.4, 516, 2),
+                    PackageEntity("tafsir_qurtubi", "تفسير القرطبي (الجامع لأحكام القرآن)", "Tafsir", false, 65.2, 671, 3),
+                    PackageEntity("tafsir_ibn_ashur", "تفسير ابن عاشور (التحرير والتنوير)", "Tafsir", false, 45.0, 1393, 4),
+                    PackageEntity("word_irab_complex", "تفصيل إعراب القرآن الكلمة بالكلمة", "Other", false, 18.2, 850, 9),
+                    PackageEntity("mushaf_regions_hd", "حدود إحداثيات الآيات للهواتف والتابلت", "Other", false, 142.0, 9999, 10),
+                    PackageEntity("library_baghdad", "مكتبة بغداد للبحوث الشرعية والتفسير", "Other", false, 115.0, 412, 11),
+                    PackageEntity("library_andalus", "مكتبة الأندلس التفاعلية لقرائن الآيات", "Other", false, 88.5, 650, 12)
+                )
+                
+                // Add any missing packages from cloud manifest
+                for (newPkg in externalManifestList) {
+                    if (currentPkgs.none { it.packageId == newPkg.packageId }) {
+                        currentPkgs.add(newPkg)
+                    }
+                }
+                
+                // Sort by Hijri author's death date!
+                val sortedPkgs = currentPkgs.sortedBy { it.authorDeathHijri ?: 99999 }
+                _packages.value = sortedPkgs
+                _errorMessage.value = "تم تحديث قائمة المصادر والحزم بنجاح مرجعياً!"
+            } catch (e: Exception) {
+                _errorMessage.value = "فشل التحديث السحابي: ${e.localizedMessage}"
+            }
+        }
+    }
+
+    // ==========================================
+    // RELATED CONTENT DISCOVERY (المتعلقات والقرائن)
+    // ==========================================
+    private val _relatedVerses = MutableStateFlow<List<AyahEntity>>(emptyList())
+    val relatedVerses: StateFlow<List<AyahEntity>> = _relatedVerses.asStateFlow()
+
+    private val _relatedSurahs = MutableStateFlow<List<SurahEntity>>(emptyList())
+    val relatedSurahs: StateFlow<List<SurahEntity>> = _relatedSurahs.asStateFlow()
+
+    private val _relatedWords = MutableStateFlow<List<WordEntity>>(emptyList())
+    val relatedWords: StateFlow<List<WordEntity>> = _relatedWords.asStateFlow()
+
+    fun loadRelatedContentFor(ayah: AyahEntity, word: WordEntity? = null) {
+        viewModelScope.launch {
+            try {
+                // 1. Related Verses sharing same topics or subjects
+                val topics = ayah.subjects.split(",")
+                val resolvedVerses = mutableListOf<AyahEntity>()
+                val loadedSurahAyas = repository.getAyahsForSurah(1) + 
+                                      repository.getAyahsForSurah(112) + 
+                                      repository.getAyahsForSurah(113) + 
+                                      repository.getAyahsForSurah(114) + 
+                                      repository.getAyahsForSurah(108)
+                                      
+                val matches = loadedSurahAyas.filter { 
+                    it.id != ayah.id && topics.any { topic -> it.subjects.contains(topic.trim()) }
+                }
+                _relatedVerses.value = matches.distinctBy { it.id }.take(4)
+
+                // 2. Related Surahs sharing same revelation type (Makki/Madani) or length context
+                val currentSurah = _surahs.value.find { it.id == ayah.surahId }
+                val samePeriodTypes = _surahs.value.filter { 
+                    it.id != ayah.surahId && it.type == (currentSurah?.type ?: "Makki")
+                }
+                _relatedSurahs.value = samePeriodTypes.shuffled().take(3)
+
+                // 3. Related words containing the same root
+                if (word != null) {
+                    val rootWords = mutableListOf<WordEntity>()
+                    for (da in loadedSurahAyas) {
+                        val words = repository.getWordsForAyah(da.id)
+                        val matchingRoot = words.filter { it.root == word.root && it.id != word.id }
+                        rootWords.addAll(matchingRoot)
+                    }
+                    _relatedWords.value = rootWords.distinctBy { it.wordAr }.take(6)
+                } else {
+                    _relatedWords.value = emptyList()
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    // ==========================================
+    // MULTI-SCHEMA REFERENCE HOOKS (FUTURES BINDER)
+    // ==========================================
+    private val _simulatedTafsirAll = MutableStateFlow<List<AyahTafsirAll>>(emptyList())
+    val simulatedTafsirAll: StateFlow<List<AyahTafsirAll>> = _simulatedTafsirAll.asStateFlow()
+
+    private val _simulatedTafsirSources = MutableStateFlow<List<TafsirSource>>(emptyList())
+    val simulatedTafsirSources: StateFlow<List<TafsirSource>> = _simulatedTafsirSources.asStateFlow()
+
+    private val _simulatedWordIrab = MutableStateFlow<List<WordIrab>>(emptyList())
+    val simulatedWordIrab: StateFlow<List<WordIrab>> = _simulatedWordIrab.asStateFlow()
+
+    private val _simulatedPageRegions = MutableStateFlow<List<AyahPageRegion>>(emptyList())
+    val simulatedPageRegions: StateFlow<List<AyahPageRegion>> = _simulatedPageRegions.asStateFlow()
+
+    private val _simulatedLibraryBooks = MutableStateFlow<List<LibraryBook>>(emptyList())
+    val simulatedLibraryBooks: StateFlow<List<LibraryBook>> = _simulatedLibraryBooks.asStateFlow()
+
+    private val _simulatedLibraryPages = MutableStateFlow<List<LibraryPage>>(emptyList())
+    val simulatedLibraryPages: StateFlow<List<LibraryPage>> = _simulatedLibraryPages.asStateFlow()
+
+    init {
+        loadSurahs()
+        loadBookmarks()
+        loadPackages()
+        loadDailyAyah()
+        loadMockSimulationData()
+        
+        // Restore last read position (Default to Al-Fatihah)
+        val lastSurahId = prefs.getInt("last_surah_id", 1)
+        val lastPageNumber = prefs.getInt("last_page_number", 1)
+        _currentPageNumber.value = lastPageNumber
+        
+        selectSurah(lastSurahId)
+    }
+
+    fun loadMockSimulationData() {
+        _simulatedTafsirSources.value = listOf(
+            TafsirSource("tafsir_tabari", "جامع البيان", "الإمام الطبري", 310, "أول التفاسير المسندة بالمأثور وأصحها"),
+            TafsirSource("tafsir_qurtubi", "الجامع لأحكام القرآن", "الإمام القرطبي", 671, "تفسير فقهي شامل للأحكام واللغات"),
+            TafsirSource("tafsir_ibn_kathir", "تفسير القرآن العظيم", "ابن كثير", 774, "تفسير القرآن بالقرآن والأحاديث والآثار"),
+            TafsirSource("tafsir_jalalayn", "تفسير الجلالين", "السيوطي والمحلي", 911, "تفسير سهل مختصر على حواشي النص"),
+            TafsirSource("tafsir_muyassar", "التفسير الميسر", "علماء المدينة المنورة", 1420, "معاني واضحة مبسطة مرخصة ومعتمدة")
+        ).sortedBy { it.authorDeathHijri }
+
+        _simulatedLibraryBooks.value = listOf(
+            LibraryBook("book_saadi", "دليل السعدي لأسماء الله الحسنى", "الشارح السعدي", 1373, 192, "العقيدة والتوحيد"),
+            LibraryBook("book_irab_ism", "إعراب مفردات وأفعال آي القرآن", "محمد عبد اللطيف", 1412, 530, "لغويات وصرف"),
+            LibraryBook("book_asbab_asl", "تاريخ أسباب التنزيل التاريخية", "صالح الفوزان", 1435, 340, "علوم نزول")
+        )
+
+        _simulatedLibraryPages.value = listOf(
+            LibraryPage(1, "book_saadi", 23, "وقد دل قوله تعالى: ﴿اللَّهُ الصَّمَدُ﴾ على ثبوت صفات الكمال كلها لله رب العالمين المنزه عن النقص والشبيه، فالصمد هو الذي تكمل في سؤدده وعظمته وحكمته المستبينة.", 112),
+            LibraryPage(2, "book_irab_ism", 101, "وفي إعراب ﴿إِنَّ شَانِئَكَ هُوَ الْأَبْتَرُ﴾ الشانئ اسم إن والمضاف الكاف في محل جر، وهو ضمير فصل وعماد لا محل له، والأبتر خبر إن والتقدير المنقطع الأثر والمستقبل بالذم العظيم.", 108)
+        )
     }
 }

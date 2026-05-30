@@ -27,4 +27,11 @@ class ExampleRobolectricTest {
     println("SUCCESSFULLY SEEDED: ${surahs.size} surahs found.")
     assertEquals(114, surahs.size)
   }
+
+  @Test
+  fun `test viewModel instantiation`() {
+    val application = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val viewModel = com.example.ui.QuranViewModel(application)
+    org.junit.Assert.assertNotNull(viewModel)
+  }
 }

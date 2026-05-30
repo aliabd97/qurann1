@@ -65,3 +65,56 @@ data class PackageEntity(
     val authorDeathHijri: Int? = null,
     val displayOrder: Int = 99
 )
+
+// Architectural Reference Models for Upcoming External Database Tables
+// (Prepared to allow the interface and business logic to later bind without schema modifications)
+
+data class AyahTafsirAll(
+    val id: Int,
+    val ayahId: Int,
+    val tafsirSourceId: String,
+    val tafsirText: String
+)
+
+data class TafsirSource(
+    val sourceId: String,
+    val bookName: String,
+    val authorName: String,
+    val authorDeathHijri: Int,
+    val description: String
+)
+
+data class WordIrab(
+    val wordId: Int,
+    val ayahId: Int,
+    val wordPosition: Int,
+    val irabText: String
+)
+
+data class AyahPageRegion(
+    val id: Int,
+    val ayahId: Int,
+    val pageNumber: Int,
+    val startX: Float,
+    val startY: Float,
+    val endX: Float,
+    val endY: Float
+)
+
+data class LibraryBook(
+    val bookId: String,
+    val bookTitle: String,
+    val authorName: String,
+    val authorDeathHijri: Int,
+    val totalPages: Int,
+    val category: String
+)
+
+data class LibraryPage(
+    val id: Int,
+    val bookId: String,
+    val pageNumber: Int,
+    val pageContent: String,
+    val matchedAyahId: Int? = null
+)
+
