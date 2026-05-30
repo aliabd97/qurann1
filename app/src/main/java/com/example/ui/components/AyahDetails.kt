@@ -2,6 +2,7 @@ package com.example.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.data.AyahEntity
 import com.example.data.WordEntity
 import com.example.ui.QuranViewModel
+import androidx.compose.ui.platform.LocalContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,6 +130,8 @@ fun AyahDetailsScreen(
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    TextActionButtons(textToCopy = currentAyah.textAr, viewModel = viewModel)
                 }
             }
 
@@ -245,6 +249,8 @@ fun AyahDetailsScreen(
                                                  lineHeight = 24.sp,
                                                  color = MaterialTheme.colorScheme.onSurface
                                              )
+                                             Spacer(modifier = Modifier.height(4.dp))
+                                             TextActionButtons(textToCopy = "${source.bookName}: $tafsirText", viewModel = viewModel, modifier = Modifier.padding(top = 8.dp))
                                         }
                                     }
                                 }
@@ -269,13 +275,21 @@ fun AyahDetailsScreen(
                                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                                 ) {
-                                    Text(
-                                        text = if (pageAyah.irab.isNotEmpty()) pageAyah.irab else "لم يتم تحميل حزمة الإعراب لهذه السورة الكريمة بعد.",
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontFamily = FontFamily.Serif,
-                                        modifier = Modifier.padding(16.dp),
-                                        lineHeight = 28.sp
-                                    )
+                                    Column {
+                                        Text(
+                                            text = if (pageAyah.irab.isNotEmpty()) pageAyah.irab else "لم يتم تحميل حزمة الإعراب لهذه السورة الكريمة بعد.",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontFamily = FontFamily.Serif,
+                                            modifier = Modifier.padding(16.dp),
+                                            lineHeight = 28.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        TextActionButtons(
+                                            textToCopy = if (pageAyah.irab.isNotEmpty()) pageAyah.irab else "لا يوجد إعراب متاح",
+                                            viewModel = viewModel,
+                                            modifier = Modifier.padding(end = 12.dp, bottom = 12.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -470,10 +484,27 @@ fun AyahDetailsScreen(
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
+                                                .clickable { viewModel.triggerPopupSummary(rv.textAr) }
                                                 .padding(vertical = 4.dp),
                                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
                                         ) {
                                             Column(modifier = Modifier.padding(12.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    IconButton(onClick = { viewModel.triggerPopupSummary(rv.textAr) }) {
+                                                        Icon(Icons.Default.AutoAwesome, contentDescription = "", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                                                    }
+                                                    Text(
+                                                        text = "سورة رقم: ${rv.surahId} • آية ${rv.verseNumber}",
+                                                        fontSize = 11.sp,
+                                                        color = MaterialTheme.colorScheme.primary,
+                                                        fontFamily = FontFamily.Serif
+                                                    )
+                                                }
+                                                Spacer(modifier = Modifier.height(2.dp))
                                                 Text(
                                                     text = rv.textAr,
                                                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
@@ -484,7 +515,7 @@ fun AyahDetailsScreen(
                                                 )
                                                 Spacer(modifier = Modifier.height(4.dp))
                                                 Text(
-                                                    text = "سورة رقم: ${rv.surahId} • آية ${rv.verseNumber} • موضوع: ${rv.subjects}",
+                                                    text = "موضوع: ${rv.subjects}",
                                                     fontSize = 11.sp,
                                                     color = MaterialTheme.colorScheme.primary,
                                                     fontFamily = FontFamily.Serif
@@ -522,15 +553,22 @@ fun AyahDetailsScreen(
                                                 modifier = Modifier
                                                     .clip(RoundedCornerShape(8.dp))
                                                     .background(MaterialTheme.colorScheme.secondaryContainer)
+                                                    .clickable {
+                                                        viewModel.triggerPopupSummary("الكلمة الشريفة: ${rw.wordAr}\nجذرها اللغوي: ${rw.root}\nمعناها التقريبي: ${rw.wordEn}\nموقعها وصيغتها النحوية: ${rw.grammarTags}")
+                                                    }
                                                     .padding(horizontal = 10.dp, vertical = 6.dp)
                                             ) {
-                                                Text(
-                                                    text = "${rw.wordAr} (${rw.root})",
-                                                    fontSize = 13.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    fontFamily = FontFamily.Serif,
-                                                    color = MaterialTheme.colorScheme.secondary
-                                                )
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Icon(Icons.Default.AutoAwesome, contentDescription = "", tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(10.dp))
+                                                    Spacer(modifier = Modifier.width(4.dp))
+                                                    Text(
+                                                        text = "${rw.wordAr} (${rw.root})",
+                                                        fontSize = 13.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontFamily = FontFamily.Serif,
+                                                        color = MaterialTheme.colorScheme.secondary
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -556,7 +594,11 @@ fun AyahDetailsScreen(
                                 ) {
                                     relatedSurahs.forEach { rs ->
                                         Card(
-                                            modifier = Modifier.weight(1f),
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .clickable {
+                                                    viewModel.triggerPopupSummary("سورة ${rs.nameAr}\nنوعها: ${if (rs.type == "Makki") "مكية" else "مدنية"}\nعدد آياتها وبطاقة تعريفها: تضم ${rs.id} آيات في قاعدة معلوماتنا.")
+                                                },
                                             shape = RoundedCornerShape(10.dp),
                                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                                         ) {
@@ -589,9 +631,17 @@ fun AyahDetailsScreen(
                             val aiTadabburLoading by viewModel.aiTadabburLoading.collectAsState()
                             val aiChatHistory by viewModel.aiChatHistory.collectAsState()
                             val aiChatLoading by viewModel.aiChatLoading.collectAsState()
+                            
+                            val aiEngineMode by viewModel.aiEngineMode.collectAsState()
+                            val isNanoCompatible by viewModel.isNanoCompatible.collectAsState()
+                            val nanoCheckingState by viewModel.nanoCheckingState.collectAsState()
+                            val qwenDownloadState by viewModel.qwenDownloadState.collectAsState()
+                            val qwenDownloadProgress by viewModel.qwenDownloadProgress.collectAsState()
+                            
+                            var showAiSettings by remember { mutableStateOf(false) }
                             var userQuestion by remember { mutableStateOf("") }
 
-                            LaunchedEffect(pageAyah.id) {
+                            LaunchedEffect(pageAyah.id, aiEngineMode, isNanoCompatible, qwenDownloadState) {
                                 viewModel.loadAiTadabburForAyah(pageAyah)
                                 viewModel.clearAiChat()
                             }
@@ -601,8 +651,349 @@ fun AyahDetailsScreen(
                                     .fillMaxSize()
                                     .verticalScroll(rememberScrollState())
                             ) {
+                                // Beautiful AI Engine Configuration Widget
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.08f)
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(14.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { showAiSettings = !showAiSettings },
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                Icon(
+                                                    imageVector = Icons.Default.SettingsSuggest,
+                                                    contentDescription = "AI Settings",
+                                                    tint = MaterialTheme.colorScheme.primary,
+                                                    modifier = Modifier.size(24.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(8.dp))
+                                                Column {
+                                                    Text(
+                                                        text = "إعدادات محرك الذكاء الاصطناعي الأوفلاين والسحابي",
+                                                        fontFamily = FontFamily.Serif,
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 13.sp,
+                                                        color = MaterialTheme.colorScheme.primary
+                                                    )
+                                                    Text(
+                                                        text = "المحرك النشط: " + when (aiEngineMode) {
+                                                            "cloud_gemini" -> "سحابي (Gemini 3.5 Flash)"
+                                                            "local_nano" -> "محلي مدمج (Gemini Nano)"
+                                                            "local_qwen" -> "محلي أوفلاين (Qwen-2.5-0.5B)"
+                                                            else -> "تبيان البديل المتصل"
+                                                        },
+                                                        fontSize = 10.sp,
+                                                        fontFamily = FontFamily.Serif,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                    )
+                                                }
+                                            }
+                                            Icon(
+                                                imageVector = if (showAiSettings) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                                contentDescription = "Expand",
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+
+                                        if (showAiSettings) {
+                                            Spacer(modifier = Modifier.height(14.dp))
+                                            HorizontalDivider(color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
+                                            Spacer(modifier = Modifier.height(14.dp))
+
+                                            Text(
+                                                text = "اختر نموذج المعالجة لتوليد التدبر والإجابة عن الأسئلة:",
+                                                fontSize = 11.sp,
+                                                fontFamily = FontFamily.Serif,
+                                                fontWeight = FontWeight.Bold,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                            // Options List
+                                            Column(
+                                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                                            ) {
+                                                // Option 1: Gemini 3.5 Flash (Sحابي)
+                                                Card(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { viewModel.setAiEngineMode("cloud_gemini") },
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (aiEngineMode == "cloud_gemini") 
+                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                                                        else Color.Transparent
+                                                    ),
+                                                    border = BorderStroke(
+                                                        1.dp,
+                                                        if (aiEngineMode == "cloud_gemini") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                                                    )
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        RadioButton(
+                                                            selected = (aiEngineMode == "cloud_gemini"),
+                                                            onClick = { viewModel.setAiEngineMode("cloud_gemini") }
+                                                        )
+                                                        Column {
+                                                            Text(
+                                                                text = "خيار 1: سحابي فائق (Gemini 3.5 Flash)",
+                                                                fontSize = 11.sp,
+                                                                fontFamily = FontFamily.Serif,
+                                                                fontWeight = FontWeight.Bold,
+                                                                color = MaterialTheme.colorScheme.onSurface
+                                                            )
+                                                            Text(
+                                                                text = "يتطلب اتصالاً بالإنترنت ومفتاح API في لوحة الـ Secrets. الفهم فائق السرعة وبإجابات كاملة.",
+                                                                fontSize = 9.sp,
+                                                                fontFamily = FontFamily.Serif,
+                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                // Option 2: Gemini Nano (محلي 0 ميغابايت)
+                                                Card(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { viewModel.setAiEngineMode("local_nano") },
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (aiEngineMode == "local_nano") 
+                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                                                        else Color.Transparent
+                                                    ),
+                                                    border = BorderStroke(
+                                                        1.dp,
+                                                        if (aiEngineMode == "local_nano") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                                                    )
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        RadioButton(
+                                                            selected = (aiEngineMode == "local_nano"),
+                                                            onClick = { viewModel.setAiEngineMode("local_nano") }
+                                                        )
+                                                        Column {
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Text(
+                                                                    text = "خيار 2: محلي مدمج (Gemini Nano) - (0 MB)",
+                                                                    fontSize = 11.sp,
+                                                                    fontFamily = FontFamily.Serif,
+                                                                    fontWeight = FontWeight.Bold,
+                                                                    color = MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                                Spacer(modifier = Modifier.width(6.dp))
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .background(Color(0xFFD4AF37).copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                                                ) {
+                                                                    Text("ممتاز للهواتف الفائقة", fontSize = 7.sp, color = Color(0xFFC59B27), fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
+                                                                }
+                                                            }
+                                                            Text(
+                                                                text = "يشتغل محلياً 100% بدون إنترنت وبالمجان عبر نظام AICore الخاص بـ Android. حجمه صفر بايت على تطبيقك.",
+                                                                fontSize = 9.sp,
+                                                                fontFamily = FontFamily.Serif,
+                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                            )
+
+                                                            Spacer(modifier = Modifier.height(6.dp))
+
+                                                            // Compatibility Checker UI
+                                                            Row(
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                            ) {
+                                                                Button(
+                                                                    onClick = { viewModel.checkNanoCompatibility() },
+                                                                    enabled = !nanoCheckingState,
+                                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                                                    modifier = Modifier.height(28.dp),
+                                                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                                                                ) {
+                                                                    if (nanoCheckingState) {
+                                                                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(10.dp), strokeWidth = 1.dp)
+                                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                                        Text("جاري فحص التوافق...", fontSize = 8.sp, fontFamily = FontFamily.Serif)
+                                                                    } else {
+                                                                        Icon(Icons.Default.Verified, contentDescription = "check", modifier = Modifier.size(10.dp), tint = Color.White)
+                                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                                        Text("فحص توافق الهاتف", fontSize = 8.sp, fontFamily = FontFamily.Serif)
+                                                                    }
+                                                                }
+
+                                                                Text(
+                                                                    text = when (isNanoCompatible) {
+                                                                        true -> "🟢 هاتفك يدعم Gemini Nano محلياً! تفعيل فوري."
+                                                                        false -> "🔴 هذا الهاتف لا يدعم ميزة AICore. يرجى استخدام الخيار الثالث بالأسفل."
+                                                                        null -> "⚪ لم يتم فحص التوافق بعد."
+                                                                    },
+                                                                    fontSize = 9.sp,
+                                                                    fontFamily = FontFamily.Serif,
+                                                                    color = when (isNanoCompatible) {
+                                                                        true -> Color(0xFF2E7D32)
+                                                                        false -> Color(0xFFC62828)
+                                                                        null -> MaterialTheme.colorScheme.onSurfaceVariant
+                                                                    }
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+                                                // Option 3: Qwen 2.5 0.5B (محلي عند الطلب)
+                                                Card(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable { viewModel.setAiEngineMode("local_qwen") },
+                                                    shape = RoundedCornerShape(10.dp),
+                                                    colors = CardDefaults.cardColors(
+                                                        containerColor = if (aiEngineMode == "local_qwen") 
+                                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                                                        else Color.Transparent
+                                                    ),
+                                                    border = BorderStroke(
+                                                        1.dp,
+                                                        if (aiEngineMode == "local_qwen") MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f)
+                                                    )
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier.padding(10.dp),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        RadioButton(
+                                                            selected = (aiEngineMode == "local_qwen"),
+                                                            onClick = { viewModel.setAiEngineMode("local_qwen") }
+                                                        )
+                                                        Column {
+                                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                                Text(
+                                                                    text = "خيار 3: تنزيل عند الطلب (Qwen-2.5-0.5B) - (300 MB)",
+                                                                    fontSize = 11.sp,
+                                                                    fontFamily = FontFamily.Serif,
+                                                                    fontWeight = FontWeight.Bold,
+                                                                    color = MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                                Spacer(modifier = Modifier.width(6.dp))
+                                                                Box(
+                                                                    modifier = Modifier
+                                                                        .background(MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                                                        .padding(horizontal = 4.dp, vertical = 2.dp)
+                                                                ) {
+                                                                    Text("لكافة الهواتف المتوسطة والقديمة", fontSize = 7.sp, color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif)
+                                                                }
+                                                            }
+                                                            Text(
+                                                                text = "يتحمل النموذج بالكامل داخل ذاكرة التطبيق لتوفير تشغيل ممتاز ومجاني 100% أوفلاين.",
+                                                                fontSize = 9.sp,
+                                                                fontFamily = FontFamily.Serif,
+                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                            )
+
+                                                            Spacer(modifier = Modifier.height(8.dp))
+
+                                                            // Downloader Widget for Qwen
+                                                            Row(
+                                                                modifier = Modifier.fillMaxWidth(),
+                                                                verticalAlignment = Alignment.CenterVertically,
+                                                                horizontalArrangement = Arrangement.SpaceBetween
+                                                            ) {
+                                                                Column(modifier = Modifier.weight(1f)) {
+                                                                    Text(
+                                                                        text = "حالة التحميل محلياً: " + when (qwenDownloadState) {
+                                                                            "not_downloaded" -> "❌ غير متوفر"
+                                                                            "downloading" -> "📥 جاري التنزيل والتحقق: $qwenDownloadProgress%"
+                                                                            "downloaded" -> "🟢 جاهز للعمل الأوفلاين"
+                                                                            else -> "غير معروف"
+                                                                        },
+                                                                        fontSize = 9.sp,
+                                                                        fontFamily = FontFamily.Serif,
+                                                                        fontWeight = FontWeight.Bold,
+                                                                        color = when (qwenDownloadState) {
+                                                                            "downloaded" -> Color(0xFF2E7D32)
+                                                                            "downloading" -> Color(0xFF1565C0)
+                                                                            else -> Color(0xFFC62828)
+                                                                        }
+                                                                    )
+
+                                                                    if (qwenDownloadState == "downloading") {
+                                                                        Spacer(modifier = Modifier.height(4.dp))
+                                                                        LinearProgressIndicator(
+                                                                            progress = { qwenDownloadProgress / 100f },
+                                                                            modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
+                                                                            color = MaterialTheme.colorScheme.secondary,
+                                                                            trackColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.2f)
+                                                                        )
+                                                                    }
+                                                                }
+
+                                                                Spacer(modifier = Modifier.width(10.dp))
+
+                                                                if (qwenDownloadState == "not_downloaded") {
+                                                                    Button(
+                                                                        onClick = { viewModel.startDownloadingQwen() },
+                                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                                                        modifier = Modifier.height(28.dp),
+                                                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                                                                    ) {
+                                                                        Icon(Icons.Default.CloudDownload, contentDescription = "Download", modifier = Modifier.size(12.dp))
+                                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                                        Text("تنزيل النموذج", fontSize = 8.sp, fontFamily = FontFamily.Serif)
+                                                                    }
+                                                                } else if (qwenDownloadState == "downloaded") {
+                                                                    OutlinedButton(
+                                                                        onClick = { viewModel.deleteQwenModel() },
+                                                                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                                                                        modifier = Modifier.height(28.dp),
+                                                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFC62828)),
+                                                                        border = BorderStroke(1.dp, Color(0xFFC62828).copy(alpha = 0.4f))
+                                                                    ) {
+                                                                        Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier.size(12.dp))
+                                                                        Spacer(modifier = Modifier.width(4.dp))
+                                                                        Text("حذف الملفات", fontSize = 8.sp, fontFamily = FontFamily.Serif)
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
                                 Text(
-                                    text = "التدبر البلاغي والإيماني بالذكاء الاصطناعي (Gemini 3.5 Flash):",
+                                    text = when (aiEngineMode) {
+                                        "cloud_gemini" -> "التدبر البلاغي والإيماني بالذكاء الاصطناعي السحابي (Gemini 3.5):"
+                                        "local_nano" -> "التدبر البلاغي والإيماني عبر الذكاء الاصطناعي المحلي (Gemini Nano):"
+                                        "local_qwen" -> "التدبر البلاغي والإيماني عبر نموذج Qwen المحلي الأوفلاين:"
+                                        else -> "التدبر البلاغي والإيماني بالذكاء الاصطناعي:"
+                                    },
                                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                                     fontFamily = FontFamily.Serif,
                                     color = MaterialTheme.colorScheme.primary
@@ -804,5 +1195,52 @@ fun DetailsWordAnalysisRow(label: String, value: String) {
             fontFamily = FontFamily.Serif,
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+fun TextActionButtons(
+    textToCopy: String,
+    viewModel: QuranViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // AI summarize button
+        IconButton(
+            onClick = { viewModel.triggerPopupSummary(textToCopy) },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.AutoAwesome,
+                contentDescription = "تلخيص بالذكاء الاصطناعي",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+        
+        Spacer(modifier = Modifier.width(4.dp))
+        
+        // Copy button
+        IconButton(
+            onClick = {
+                val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                val clip = android.content.ClipData.newPlainText("Tebyan Copied Text", textToCopy)
+                clipboard.setPrimaryClip(clip)
+                android.widget.Toast.makeText(context, "تم نسخ النص إلى الحافظة! ✅", android.widget.Toast.LENGTH_SHORT).show()
+            },
+            modifier = Modifier.size(36.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ContentCopy,
+                contentDescription = "نسخ النص",
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }
