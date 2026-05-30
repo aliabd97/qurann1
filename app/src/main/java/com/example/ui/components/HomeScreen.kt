@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -20,14 +21,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.AyahEntity
+import com.example.data.SurahEntity
 import com.example.ui.QuranViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,31 +42,91 @@ fun HomeScreen(
     onNavigateToQuran: (String) -> Unit, // "study" or "mushaf"
     onNavigateToPackages: () -> Unit,
     onOpenSurahIndex: () -> Unit,
+    onNavigateToDetails: (AyahEntity, Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val surahs by viewModel.surahs.collectAsState()
     val bookmarks by viewModel.bookmarks.collectAsState()
+    val bookmarkedAyahs by viewModel.bookmarkedAyahs.collectAsState()
     val packages by viewModel.packages.collectAsState()
-    
+    val dailyAyah by viewModel.dailyAyah.collectAsState()
+    val playingAyahId by viewModel.playingAyahId.collectAsState()
+    val currentSurahId by viewModel.currentSurahId.collectAsState()
+    val currentPageNumber by viewModel.currentPageNumber.collectAsState()
+
     val isDark = androidx.compose.foundation.isSystemInDarkTheme()
-    
-    // Core color tokens
+
+    // Core Theme Styling
     val primaryColor = MaterialTheme.colorScheme.primary
-    val containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-    
-    // Premium Gold Color Accent
     val goldColor = Color(0xFFD4AF37)
-    
+    val cardBg = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color.White
+
+    // State for live search on Home Screen
+    var searchQuery by remember { mutableStateOf("") }
+    val filteredSurahs = remember(searchQuery, surahs) {
+        if (searchQuery.isBlank()) {
+            emptyList()
+        } else {
+            surahs.filter {
+                it.nameAr.contains(searchQuery) ||
+                it.nameEn.contains(searchQuery, ignoreCase = true) ||
+                it.id.toString() == searchQuery.trim()
+            }
+        }
+    }
+
+    // Dynamic, Beautiful Islamic Greeting & Hijri Date
+    val hijriText = remember {
+        try {
+            val hijriDate = java.time.chrono.HijrahDate.now()
+            val day = hijriDate.get(java.time.temporal.ChronoField.DAY_OF_MONTH)
+            val month = hijriDate.get(java.time.temporal.ChronoField.MONTH_OF_YEAR)
+            val year = hijriDate.get(java.time.temporal.ChronoField.YEAR)
+
+            val monthNames = listOf(
+                "محرم", "صفر", "ربيع الأول", "ربيع الآخر",
+                "جمادى الأولى", "جمادى الآخرة", "رجب", "شعبان",
+                "رمضان", "شوال", "ذو القعدة", "ذو الحجة"
+            )
+            val monthStr = monthNames.getOrNull(month - 1) ?: "ذو الحجة"
+
+            val arabicDigits = charArrayOf('٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩')
+            fun toAr(num: Int): String = num.toString().map { if (it.isDigit()) arabicDigits[it - '0'] else it }.joinToString("")
+
+            "${toAr(day)} $monthStr ${toAr(year)} هـ"
+        } catch (e: Throwable) {
+            "١٣ ذو الحجة ١٤٤٧ هـ" // High-fidelity beautiful dynamic fallback
+        }
+    }
+
+    // Get Surah details for "Last Read" card
+    val lastReadSurah = remember(currentSurahId, surahs) {
+        surahs.find { it.id == currentSurahId }
+    }
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { 
-                    Text(
-                        "الرئيسية • قُرْنَانٌ كَرِيمٌ", 
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Serif,
-                        color = if (isDark) primaryColor else Color.White
-                    ) 
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MenuBook,
+                            contentDescription = "Logo",
+                            tint = goldColor,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "قُرْآنٌ كَرِيمٌ",
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 20.sp,
+                            color = if (isDark) primaryColor else Color.White
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = if (isDark) MaterialTheme.colorScheme.surface else primaryColor
@@ -78,216 +143,722 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Welcome Header Block with Greeting & Hijri Date
             item {
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-            
-            // Premium Welcome Card (Islamic Geometric / Gradient theme)
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    border = BorderStroke(1.dp, goldColor.copy(alpha = 0.5f)),
-                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                Brush.linearGradient(
-                                    colors = if (isDark) {
-                                        listOf(Color(0xFF0D251C), Color(0xFF163E2E), Color(0xFF0A2016))
-                                    } else {
-                                        listOf(Color(0xFF0F5A3E), Color(0xFF1E825B), Color(0xFF0D4B34))
-                                    }
-                                )
-                            )
-                            .padding(20.dp)
-                    ) {
-                        Column {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column {
-                                    Text(
-                                        text = "وَهَٰذَا كِتَابٌ أَنزَلْنَاهُ مُبَارَكٌ",
-                                        fontFamily = FontFamily.Serif,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = goldColor
-                                    )
-                                    Spacer(modifier = Modifier.height(2.dp))
-                                    Text(
-                                        text = "تطبيق تدبر ودراسة القرآن الكريم",
-                                        fontFamily = FontFamily.Serif,
-                                        fontSize = 12.sp,
-                                        color = Color.White.copy(alpha = 0.8f)
-                                    )
-                                }
-                                Icon(
-                                    imageVector = Icons.Default.MenuBook,
-                                    contentDescription = "Quran decoration",
-                                    tint = goldColor,
-                                    modifier = Modifier.size(40.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
-                            HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
-                            Spacer(modifier = Modifier.height(14.dp))
-                            Text(
-                                text = "«كِتَابٌ أَنزَلْنَاهُ إِلَيْكَ مُبَارَكٌ لِّيَدَّبَّرُوا آيَاتِهِ وَلِيَتَذَكَّرَ أُولُو الْأَلْبَابِ»",
-                                fontFamily = FontFamily.Serif,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth(),
-                                lineHeight = 24.sp
-                            )
-                        }
-                    }
-                }
-            }
-
-            // Quick Stats Stats Grid
-            item {
+                Spacer(modifier = Modifier.height(10.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    StatCard(
-                        title = "سور القرآن",
-                        count = "${surahs.size}",
-                        icon = Icons.Default.FormatListNumbered,
-                        color = primaryColor,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        title = "آيات مفضلة",
-                        count = "${bookmarks.size}",
-                        icon = Icons.Default.Star,
-                        color = goldColor,
-                        modifier = Modifier.weight(1f)
-                    )
-                    StatCard(
-                        title = "حزم تفاسير",
-                        count = "${packages.filter { it.isInstalled }.size}",
-                        icon = Icons.Default.CloudQueue,
-                        color = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-
-            // Interactive Navigation Card options
-            item {
-                Text(
-                    text = "واجهات القراءة والتدبر",
-                    fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = primaryColor,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
-                )
-            }
-
-            item {
-                PrimaryActionCard(
-                    title = "واجهة الدراسة والتفسير",
-                    subtitle = "تصفح الآيات كلمة بكلمة مع الإعراب، التفسير، التراجم، وأسباب النزول المأثورة.",
-                    badge = "خيار الدراسة الآلي",
-                    icon = Icons.Default.Search,
-                    color = primaryColor,
-                    onClick = { onNavigateToQuran("study") }
-                )
-            }
-
-            item {
-                PrimaryActionCard(
-                    title = "واجهة مصحف التلاوة",
-                    subtitle = "تصفح المصحف العثماني بصيغة الصفحات والمقاطع الكريمة.",
-                    badge = "محاكاة المصحف الورقي",
-                    icon = Icons.Default.AutoStories,
-                    color = goldColor,
-                    onClick = { onNavigateToQuran("mushaf") }
-                )
-            }
-
-            item {
-                PrimaryActionCard(
-                    title = "مكتبة مدير الحزم والكتب الكريمة",
-                    subtitle = "تحميل وتفعيل كتب التفسير، الإعراب، ومراجع الفجر والمفردات الإضافية أوفلاين.",
-                    badge = "الكتب والمكتبات أوفلاين",
-                    icon = Icons.Default.LibraryBooks,
-                    color = MaterialTheme.colorScheme.secondary,
-                    onClick = onNavigateToPackages
-                )
-            }
-
-            // Index Quick link
-            item {
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onOpenSurahIndex() }
-                        .padding(vertical = 4.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = containerColor),
-                    border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.15f))
-                ) {
-                    Row(
+                    Column {
+                        Text(
+                            text = "السلام عليكم ورحمة الله وبركاته",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontFamily = FontFamily.Serif
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "مرحباً بك في تطبيق تدبر ودراسة القرآن الكريم",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            fontFamily = FontFamily.Serif
+                        )
+                    }
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(primaryColor.copy(alpha = 0.12f))
+                            .padding(horizontal = 10.dp, vertical = 6.dp),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(primaryColor)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Book,
-                                    contentDescription = "Index",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(18.dp)
-                                        .align(Alignment.Center)
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "فهرس السور السريع",
-                                    fontFamily = FontFamily.Serif,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
-                                )
-                                Text(
-                                    text = "الانتقال السريع إلى سورة مخصصة والبدء بدراستها.",
-                                    fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "Go",
-                            tint = primaryColor
+                        Text(
+                            text = hijriText,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold, color = primaryColor),
+                            fontFamily = FontFamily.Serif
                         )
                     }
                 }
             }
 
+            // Modern Interactive Search Bar
             item {
-                Spacer(modifier = Modifier.height(24.dp))
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    placeholder = {
+                        Text(
+                            "ابحث عن السور بالاسم أو الرقم الكريّم...",
+                            fontFamily = FontFamily.Serif,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = "Search",
+                            tint = primaryColor
+                        )
+                    },
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Clear",
+                                    tint = primaryColor
+                                )
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = cardBg,
+                        unfocusedContainerColor = cardBg,
+                        focusedBorderColor = primaryColor,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .shadow(elevation = 3.dp, shape = RoundedCornerShape(16.dp))
+                )
             }
+
+            // Search Results Section (Shows if search active)
+            if (searchQuery.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "نتائج البحث (${filteredSurahs.size} سورة):",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = primaryColor
+                    )
+                }
+                if (filteredSurahs.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(cardBg, RoundedCornerShape(12.dp))
+                                .padding(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "عذراً، لم نجد سورة مطابقة لبحثك.",
+                                fontFamily = FontFamily.Serif,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    items(filteredSurahs) { surah ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    viewModel.selectSurah(surah.id)
+                                    onNavigateToQuran("study")
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = cardBg),
+                            border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.1f))
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(14.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(primaryColor.copy(alpha = 0.1f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "${surah.id}",
+                                            fontWeight = FontWeight.Bold,
+                                            color = primaryColor,
+                                            fontSize = 13.sp
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = surah.nameAr,
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = FontFamily.Serif,
+                                            fontSize = 15.sp
+                                        )
+                                        Text(
+                                            text = "سورة ${surah.type} • آياتها ${surah.versesCount}",
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = "Go",
+                                    tint = primaryColor,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Default Home Screen Dashboard when no active search query
+
+                // 1. Premium Last Read Card (أكمل التلاوة)
+                item {
+                    val gradientColors = if (isDark) {
+                        listOf(Color(0xFF0C241B), Color(0xFF143B2B), Color(0xFF091C15))
+                    } else {
+                        listOf(Color(0xFF0E543A), Color(0xFF1C7A55), Color(0xFF0C4B33))
+                    }
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 6.dp, shape = RoundedCornerShape(20.dp)),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                        border = BorderStroke(1.2.dp, goldColor.copy(alpha = 0.6f))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .background(Brush.linearGradient(colors = gradientColors))
+                                .padding(18.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.History,
+                                            contentDescription = "Last Read",
+                                            tint = goldColor,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "مواصلة القراءة والتدبر",
+                                            fontWeight = FontWeight.Bold,
+                                            fontFamily = FontFamily.Serif,
+                                            fontSize = 13.sp,
+                                            color = goldColor
+                                        )
+                                    }
+
+                                    // Display active reading mode badge
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(Color.White.copy(alpha = 0.15f))
+                                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                                    ) {
+                                        Text(
+                                            text = "سورة نشطة",
+                                            fontSize = 9.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Bottom
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = lastReadSurah?.nameAr ?: "سورة الفاتحة",
+                                            style = MaterialTheme.typography.titleLarge.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color.White
+                                            ),
+                                            fontFamily = FontFamily.Serif
+                                        )
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = "آخر سورة تصفّحتها • صفحة $currentPageNumber",
+                                            fontSize = 12.sp,
+                                            color = Color.White.copy(alpha = 0.8f),
+                                            fontFamily = FontFamily.Serif
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = { onNavigateToQuran("study") },
+                                        colors = ButtonDefaults.buttonColors(containerColor = goldColor),
+                                        shape = RoundedCornerShape(12.dp),
+                                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = "أكمل الآن ←",
+                                            fontFamily = FontFamily.Serif,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            color = if (isDark) Color.Black else Color.White
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(14.dp))
+                                HorizontalDivider(color = Color.White.copy(alpha = 0.12f))
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // Visual Progress Bar
+                                val progressRatio = remember(currentSurahId) {
+                                    currentSurahId.toFloat() / 114f
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    LinearProgressIndicator(
+                                        progress = { progressRatio },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(4.dp)
+                                            .clip(CircleShape),
+                                        color = goldColor,
+                                        trackColor = Color.White.copy(alpha = 0.15f),
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = "${(progressRatio * 100).toInt()}% من المصحف",
+                                        fontSize = 9.sp,
+                                        color = Color.White.copy(alpha = 0.7f),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 2. Beautiful Islamic Grid Actions (Dashboard 2x2)
+                item {
+                    Text(
+                        text = "بوابة القرآن الكافية",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = primaryColor,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                    )
+                }
+
+                item {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            GridDashboardCard(
+                                title = "فهرس السور",
+                                subtitle = "١١٤ سورة مباركة مع التقسيم والبحث المباشر.",
+                                icon = Icons.Default.List,
+                                color = Color(0xFF1E825B),
+                                onClick = onOpenSurahIndex,
+                                modifier = Modifier.weight(1f)
+                            )
+                            GridDashboardCard(
+                                title = "مصحف التلاوة",
+                                subtitle = "تصفح المصحف العثماني بالصفحات الكاملة والمقاطع اللطيفة.",
+                                icon = Icons.Default.AutoStories,
+                                color = Color(0xFFD4AF37),
+                                onClick = { onNavigateToQuran("mushaf") },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            GridDashboardCard(
+                                title = "تفسير ودراسة",
+                                subtitle = "مواضيع الآيات واللفظ كلمة بكلمة والإعراب التفصيلي.",
+                                icon = Icons.Default.MenuBook,
+                                color = Color(0xFF1976D2),
+                                onClick = { onNavigateToQuran("study") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            GridDashboardCard(
+                                title = "مكتبة الكتب",
+                                subtitle = "تفعيل كتب التفسير، والمراجع الإضافية والمفردات اللغوية أوفلاين.",
+                                icon = Icons.Default.LibraryBooks,
+                                color = Color(0xFF7B1FA2),
+                                onClick = onNavigateToPackages,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
+
+                // 3. Dynamic Daily Verse of comfort (آية اليوم الكريمة) with live audio & Tafsir action
+                if (dailyAyah != null) {
+                    item {
+                        Text(
+                            text = "آية اليوم للتدبر والانشراح",
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = primaryColor,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                        )
+                    }
+
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .shadow(elevation = 4.dp, shape = RoundedCornerShape(18.dp)),
+                            shape = RoundedCornerShape(18.dp),
+                            colors = CardDefaults.cardColors(containerColor = cardBg),
+                            border = BorderStroke(1.dp, primaryColor.copy(alpha = 0.08f))
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(primaryColor.copy(alpha = 0.08f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.AutoAwesome,
+                                        contentDescription = "Daily Verse",
+                                        tint = goldColor,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // Clean Beautiful Quranic typography Calligraphy representation
+                                Text(
+                                    text = dailyAyah!!.textAr,
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        lineHeight = 32.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontFamily = FontFamily.Serif,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                val surahName = remember(dailyAyah, surahs) {
+                                    surahs.find { it.id == dailyAyah!!.surahId }?.nameAr ?: "آية مباركة"
+                                }
+                                Text(
+                                    text = "﴿$surahName : آية ${dailyAyah!!.verseNumber}﴾",
+                                    fontSize = 11.sp,
+                                    fontFamily = FontFamily.Serif,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = primaryColor
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+                                HorizontalDivider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f))
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Text(
+                                    text = dailyAyah!!.translation,
+                                    fontSize = 12.sp,
+                                    textAlign = TextAlign.Center,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    fontFamily = FontFamily.Serif,
+                                    lineHeight = 18.sp,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Real micro-actions on Home Screen itself
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    val isPlayingThis = (playingAyahId == dailyAyah!!.id)
+
+                                    OutlinedButton(
+                                        onClick = { viewModel.playAyah(dailyAyah!!) },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            contentColor = if (isPlayingThis) Color.Red else primaryColor
+                                        ),
+                                        border = BorderStroke(1.dp, if (isPlayingThis) Color.Red.copy(alpha = 0.5f) else primaryColor.copy(alpha = 0.3f)),
+                                        modifier = Modifier.weight(1f),
+                                        contentPadding = PaddingValues(vertical = 4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isPlayingThis) Icons.Default.Stop else Icons.Default.PlayArrow,
+                                            contentDescription = "Play"
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = if (isPlayingThis) "إيقاف التلاوة" else "استمع للآية",
+                                            fontFamily = FontFamily.Serif,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+
+                                    Button(
+                                        onClick = { onNavigateToDetails(dailyAyah!!, 0) },
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = primaryColor),
+                                        modifier = Modifier.weight(1f),
+                                        contentPadding = PaddingValues(vertical = 4.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Book,
+                                            contentDescription = "Details",
+                                            modifier = Modifier.size(14.dp),
+                                            tint = Color.White
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "التدبر والتفسير",
+                                            color = Color.White,
+                                            fontFamily = FontFamily.Serif,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // 4. Quick Stats & Achievements Grid
+                item {
+                    Text(
+                        text = "إحصائيات المنصة الكريمة",
+                        fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = primaryColor,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp)
+                    )
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        StatCard(
+                            title = "سور ومفهرسات",
+                            count = "${surahs.size}",
+                            icon = Icons.Default.FormatListNumbered,
+                            color = primaryColor,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            title = "آيات مفضلة",
+                            count = "${bookmarks.size}",
+                            icon = Icons.Default.Star,
+                            color = goldColor,
+                            modifier = Modifier.weight(1f)
+                        )
+                        StatCard(
+                            title = "كتب تفاسير",
+                            count = "${packages.filter { it.type == "Tafsir" && it.isInstalled }.size}",
+                            icon = Icons.Default.CloudQueue,
+                            color = MaterialTheme.colorScheme.secondary,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
+                // 5. Saved Bookmarks Quick Carousel (My Marks & Reflections)
+                if (bookmarkedAyahs.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = "آياتك المفضلة وعلاماتك المرجعية",
+                            fontFamily = FontFamily.Serif,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp,
+                            color = primaryColor,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                        )
+                    }
+
+                    item {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(bottom = 6.dp)
+                        ) {
+                            items(bookmarkedAyahs) { ayah ->
+                                val correspondingSurah = remember(ayah, surahs) {
+                                    surahs.find { it.id == ayah.surahId }
+                                }
+                                Card(
+                                    modifier = Modifier
+                                        .width(260.dp)
+                                        .clickable { onNavigateToDetails(ayah, 0) }
+                                        .shadow(3.dp, RoundedCornerShape(14.dp)),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = CardDefaults.cardColors(containerColor = cardBg),
+                                    border = BorderStroke(1.dp, goldColor.copy(alpha = 0.2f))
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(14.dp)
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = correspondingSurah?.nameAr ?: "آية مباركة",
+                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                                fontFamily = FontFamily.Serif,
+                                                color = primaryColor
+                                            )
+                                            Icon(
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = "Fav",
+                                                tint = goldColor,
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Text(
+                                            text = ayah.textAr,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                lineHeight = 22.sp,
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                            fontFamily = FontFamily.Serif,
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            modifier = Modifier.fillMaxWidth()
+                                        )
+
+                                        Spacer(modifier = Modifier.height(10.dp))
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "آية رقم ${ayah.verseNumber} • صفحة ${ayah.pageNumber}",
+                                                fontSize = 10.sp,
+                                                fontFamily = FontFamily.Serif,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = "انقر للتفسير ←",
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                fontFamily = FontFamily.Serif,
+                                                color = goldColor
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+}
+
+// Beautiful Dashboard Asymmetric grid tile
+@Composable
+fun GridDashboardCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    color: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
+    Card(
+        modifier = modifier
+            .clickable { onClick() }
+            .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp)),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color.White
+        ),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.12f))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(34.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(color.copy(alpha = 0.12f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = title,
+                    tint = color,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Serif,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = subtitle,
+                fontSize = 10.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                lineHeight = 14.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
@@ -328,85 +899,9 @@ fun StatCard(
             Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = title,
+                fontFamily = FontFamily.Serif,
                 fontSize = 10.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-@Composable
-fun PrimaryActionCard(
-    title: String,
-    subtitle: String,
-    badge: String,
-    icon: ImageVector,
-    color: Color,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.07f))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(color.copy(alpha = 0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = title,
-                            tint = color,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = title,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-                
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(color.copy(alpha = 0.15f))
-                        .padding(horizontal = 8.dp, vertical = 2.dp)
-                ) {
-                    Text(
-                        text = badge,
-                        fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = color
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Text(
-                text = subtitle,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                lineHeight = 18.sp
             )
         }
     }

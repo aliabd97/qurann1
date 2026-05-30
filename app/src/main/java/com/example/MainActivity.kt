@@ -163,7 +163,12 @@ class MainActivity : ComponentActivity() {
                                                 activeTab = "quran"
                                             },
                                             onNavigateToPackages = { activeTab = "packages" },
-                                            onOpenSurahIndex = { showSurahIndex = true }
+                                            onOpenSurahIndex = { showSurahIndex = true },
+                                            onNavigateToDetails = { ayah, tabIndex ->
+                                                selectedAyahForDetails = ayah
+                                                initialDetailsTab = tabIndex
+                                                currentScreen = "details"
+                                            }
                                         )
                                     }
                                     "packages" -> {

@@ -1,6 +1,7 @@
 package com.example.ui
 
 import android.app.Application
+import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.*
@@ -78,12 +79,57 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
     private val _allAyahWords = MutableStateFlow<Map<Int, List<WordEntity>>>(emptyMap())
     val allAyahWords: StateFlow<Map<Int, List<WordEntity>>> = _allAyahWords.asStateFlow()
 
+    // Preferences & persistence
+    private val prefs = application.getSharedPreferences("quran_prefs", Context.MODE_PRIVATE)
+
+    private val _bookmarkedAyahs = MutableStateFlow<List<AyahEntity>>(emptyList())
+    val bookmarkedAyahs: StateFlow<List<AyahEntity>> = _bookmarkedAyahs.asStateFlow()
+
+    private val _dailyAyah = MutableStateFlow<AyahEntity?>(null)
+    val dailyAyah: StateFlow<AyahEntity?> = _dailyAyah.asStateFlow()
+
     init {
         loadSurahs()
         loadBookmarks()
         loadPackages()
-        // Initialize with Surah Al-Fatihah
-        selectSurah(1)
+        loadDailyAyah()
+        
+        // Restore last read position (Default to Al-Fatihah)
+        val lastSurahId = prefs.getInt("last_surah_id", 1)
+        val lastPageNumber = prefs.getInt("last_page_number", 1)
+        _currentPageNumber.value = lastPageNumber
+        
+        selectSurah(lastSurahId)
+    }
+
+    private fun loadDailyAyah() {
+        viewModelScope.launch {
+            try {
+                // Pre-selected list of beautiful, comforting Quran verses containing inspirational themes
+                val comfortingList = listOf(
+                    Pair(1, 1),   // الفاتحة
+                    Pair(2, 152), // "فَاذْكُرُونِي أَذْكُرْكُمْ"
+                    Pair(2, 186), // "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ"
+                    Pair(2, 255), // آية الكرسي
+                    Pair(2, 286), // "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا"
+                    Pair(3, 159), // "فَإِذَا عَزَمْتَ فَتَوَكَّلْ عَلَى اللَّهِ"
+                    Pair(20, 114),// "وَقُل رَّبِّ زِدْنِي عِلْمًا"
+                    Pair(39, 53), // "قُل يَا عِبَادِيَ الَّذِينَ أَسْرَفُوا عَلَى أَنفُسِهِمْ لَا تَقْنَطُوا"
+                    Pair(94, 5),  // "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا"
+                    Pair(94, 6)   // "إِنَّ مَعَ الْعُسْرِ يُسْرًا"
+                )
+                
+                val calendar = java.util.Calendar.getInstance()
+                val dayOfYear = calendar.get(java.util.Calendar.DAY_OF_YEAR)
+                val pair = comfortingList[dayOfYear % comfortingList.size]
+                
+                val ayahs = repository.getAyahsForSurah(pair.first)
+                val matching = ayahs.find { it.verseNumber == pair.second }
+                _dailyAyah.value = matching ?: ayahs.firstOrNull()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun loadSurahs() {
@@ -103,12 +149,14 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 _currentSurahId.value = surahId
+                prefs.edit().putInt("last_surah_id", surahId).apply()
                 val list = repository.getAyahsForSurah(surahId)
                 _ayahs.value = list
                 
                 // If we have ayahs, update page starts based on the first ayah page
                 if (list.isNotEmpty()) {
                     _currentPageNumber.value = list[0].pageNumber
+                    prefs.edit().putInt("last_page_number", list[0].pageNumber).apply()
                 }
                 loadWordsForCurrentAyahs(list)
             } catch (e: Exception) {
@@ -123,12 +171,14 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val clampedPage = pageNumber.coerceIn(1, 604)
                 _currentPageNumber.value = clampedPage
+                prefs.edit().putInt("last_page_number", clampedPage).apply()
                 val list = repository.getAyahsForPage(clampedPage)
                 _ayahs.value = list
                 
                 // If page is selected, adjust current Surah based on the first ayah
                 if (list.isNotEmpty()) {
                     _currentSurahId.value = list[0].surahId
+                    prefs.edit().putInt("last_surah_id", list[0].surahId).apply()
                 }
                 loadWordsForCurrentAyahs(list)
             } catch (e: Exception) {
@@ -181,6 +231,12 @@ class QuranViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val list = repository.getBookmarks()
                 _bookmarks.value = list.map { it.ayahId }.toSet()
+                
+                // Load details for bookmarked ayahs to display on HomeScreen
+                val ayahEntities = list.mapNotNull { bookmark ->
+                    repository.getAyah(bookmark.ayahId)
+                }
+                _bookmarkedAyahs.value = ayahEntities
             } catch (e: Exception) {
                 e.printStackTrace()
             }
