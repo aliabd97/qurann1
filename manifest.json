@@ -1,0 +1,942 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-06T20:20:17.716135+00:00",
+  "releaseTag": "packages-v1",
+  "packages": [
+    {
+      "id": "hadi_004",
+      "name": "النور - محسن قرائتي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 6236,
+      "sizeBytes": 3409158,
+      "sha256": "a3709759ae3c454d7cf6b251c25019e9e9fd9c0308da2b1247bcb5a84e545a77",
+      "fileName": "tafsir_hadi_004_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_hadi_004_v1.db.zip"
+    },
+    {
+      "id": "hadi_005",
+      "name": "روايات أهل البيت في التفسير",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 6236,
+      "sizeBytes": 4636986,
+      "sha256": "aa3fe9541c43dda8f87fd5ebd32d8827729442c28727896f723631b4aceccf74",
+      "fileName": "tafsir_hadi_005_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_hadi_005_v1.db.zip"
+    },
+    {
+      "id": "bayan_6",
+      "name": "تفسير مقاتل بن سليمان - مقاتل",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4269,
+      "sizeBytes": 607729,
+      "sha256": "0fdaa0b4b77698f7127841b04f04d36aca55fcdf6a960cc9f844720829f5d3e2",
+      "fileName": "tafsir_bayan_6_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_6_v1.db.zip"
+    },
+    {
+      "id": "bayan_165",
+      "name": "تفسير الإمام مالك - مالك بن أنس",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 253,
+      "sizeBytes": 45351,
+      "sha256": "6ac943c3d4db95f7bbb4ba92dae50479871b7f4ab4830b430cf80cf85ca6e952",
+      "fileName": "tafsir_bayan_165_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_165_v1.db.zip"
+    },
+    {
+      "id": "bayan_167",
+      "name": "تفسير الشافعي - الشافعي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 133,
+      "sizeBytes": 58109,
+      "sha256": "c335fc8a0cad7d6f1599ab7caea64da13565323325db32d68d373c1ceb442ebd",
+      "fileName": "tafsir_bayan_167_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_167_v1.db.zip"
+    },
+    {
+      "id": "bayan_19",
+      "name": "تأويلات أهل السنة للماتريدي - الماتريدي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 3835,
+      "sizeBytes": 1231083,
+      "sha256": "4d3446cda64acb9b41797bdfc1b4683030bff9f5d85bbaeb32344784ca3a1297",
+      "fileName": "tafsir_bayan_19_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_19_v1.db.zip"
+    },
+    {
+      "id": "bayan_21",
+      "name": "أحكام القرآن للجصاص - الجصاص",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 256,
+      "sizeBytes": 90255,
+      "sha256": "96f09d97006bff1d36660ac890864388f7e449521746e536c94a31c7346e51bd",
+      "fileName": "tafsir_bayan_21_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_21_v1.db.zip"
+    },
+    {
+      "id": "bayan_173",
+      "name": "تفسير ابن خويزمنداد - ابن خويزمنداد",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 10,
+      "sizeBytes": 3702,
+      "sha256": "5d60ca47f72b225b91b0682aa5bebd4d97cbadd1e76113840d828740f7d9f9ce",
+      "fileName": "tafsir_bayan_173_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_173_v1.db.zip"
+    },
+    {
+      "id": "bayan_25",
+      "name": "الكشف والبيان في تفسير القرآن للثعلبي - الثعلبي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 449,
+      "sizeBytes": 68325,
+      "sha256": "5046fd8643d31594873ac0c5d500e346af609f546e963e44d57a7eb83273bdf0",
+      "fileName": "tafsir_bayan_25_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_25_v1.db.zip"
+    },
+    {
+      "id": "bayan_26",
+      "name": "النكت و العيون للماوردي - الماوردي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 685,
+      "sizeBytes": 117114,
+      "sha256": "33a823ea2a1779df5f2cf4cd9a658fd39fa3b3d5b3a8fdd23b9badd76056c458",
+      "fileName": "tafsir_bayan_26_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_26_v1.db.zip"
+    },
+    {
+      "id": "bayan_174",
+      "name": "آراء ابن حزم الظاهري في التفسير - ابن حزم",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 47,
+      "sizeBytes": 16458,
+      "sha256": "ba105d34751c1af3491eb515aa5e30617f677edb066c0baa3e03f046866e9971",
+      "fileName": "tafsir_bayan_174_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_174_v1.db.zip"
+    },
+    {
+      "id": "bayan_163",
+      "name": "جهود ابن عبد البر في التفسير - ابن عبد البر",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 40,
+      "sizeBytes": 9247,
+      "sha256": "f8099f49bdaee005c0adbbe2ec6b92d9cb6443ca1c872936c5fef807957d911a",
+      "fileName": "tafsir_bayan_163_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_163_v1.db.zip"
+    },
+    {
+      "id": "bayan_28",
+      "name": "لطائف الإشارات للقشيري - القشيري",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1847,
+      "sizeBytes": 363726,
+      "sha256": "186047f5e93f80868f62b0c9453f8bb493123d74626619bb881b8944be01631e",
+      "fileName": "tafsir_bayan_28_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_28_v1.db.zip"
+    },
+    {
+      "id": "bayan_29",
+      "name": "الوجيز في تفسير الكتاب العزيز للواحدي - الواحدي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 203,
+      "sizeBytes": 23650,
+      "sha256": "7a00140b63dd2c845bedda913819f4cd328ab96716c8c000fa9377c93099b1cc",
+      "fileName": "tafsir_bayan_29_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_29_v1.db.zip"
+    },
+    {
+      "id": "bayan_31",
+      "name": "تفسير القرآن للسمعاني - السمعاني",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 428,
+      "sizeBytes": 56302,
+      "sha256": "db3f7f2d4830615eddbcf9e92e9bc5f90e7871073386daf6c4ff46e3ba821df6",
+      "fileName": "tafsir_bayan_31_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_31_v1.db.zip"
+    },
+    {
+      "id": "bayan_32",
+      "name": "أحكام القرآن لإلكيا الهراسي - إلكيا الهراسي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 57,
+      "sizeBytes": 13442,
+      "sha256": "2128b231ee76b5b0ff7f53b110963885bd121368b4bef5cd401dac8ae8b7539c",
+      "fileName": "tafsir_bayan_32_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_32_v1.db.zip"
+    },
+    {
+      "id": "bayan_166",
+      "name": "جهود الإمام الغزالي في التفسير - أبو حامد الغزالي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 166,
+      "sizeBytes": 31322,
+      "sha256": "5f96f8d47bcb469a84a462c63152cfb272fc05b77de7dd68bb19556ddff76742",
+      "fileName": "tafsir_bayan_166_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_166_v1.db.zip"
+    },
+    {
+      "id": "bayan_33",
+      "name": "معالم التنزيل في تفسير القرآن الكريم للبغوي - البغوي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 174,
+      "sizeBytes": 23127,
+      "sha256": "fbbb54d255fd9a87c2907b42b255ef071382bda426491c3c620978d21448bdbd",
+      "fileName": "tafsir_bayan_33_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_33_v1.db.zip"
+    },
+    {
+      "id": "bayan_35",
+      "name": "المحرر الوجيز في تفسير الكتاب العزيز لابن عطية - ابن عطية",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 2472,
+      "sizeBytes": 521128,
+      "sha256": "1c6753b932edf349faa4a41413b32cb50776fce2d5e33b06903d9a87a0abaa25",
+      "fileName": "tafsir_bayan_35_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_35_v1.db.zip"
+    },
+    {
+      "id": "bayan_36",
+      "name": "أحكام القرآن لابن العربي - ابن العربي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 322,
+      "sizeBytes": 269152,
+      "sha256": "a4a3102d8ae6657511c31f97b8f618766b9d38c82a589a1335759ffb15637194",
+      "fileName": "tafsir_bayan_36_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_36_v1.db.zip"
+    },
+    {
+      "id": "bayan_157",
+      "name": "أحكام القرآن لابن الفرس - ابن الفرس",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 15,
+      "sizeBytes": 4762,
+      "sha256": "f5a8c0f1c72b4c5ab0c2dbd25becec35a01a53137cef437353947eff3bec09fe",
+      "fileName": "tafsir_bayan_157_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_157_v1.db.zip"
+    },
+    {
+      "id": "bayan_40",
+      "name": "زاد المسير في علم التفسير لابن الجوزي - ابن الجوزي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 125,
+      "sizeBytes": 16073,
+      "sha256": "52f9135b40e5c5848d13582a6d03794175bacf071c05e80f7f8de2ec80f18bfe",
+      "fileName": "tafsir_bayan_40_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_40_v1.db.zip"
+    },
+    {
+      "id": "bayan_164",
+      "name": "جهود القرافي في التفسير - القرافي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 58,
+      "sizeBytes": 14852,
+      "sha256": "52f23c24157fe7f8b957ef9d9d0b2502d91d7acba21e05535200d63c1038811c",
+      "fileName": "tafsir_bayan_164_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_164_v1.db.zip"
+    },
+    {
+      "id": "bayan_46",
+      "name": "أنوار التنزيل وأسرار التأويل للبيضاوي - البيضاوي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 252,
+      "sizeBytes": 34101,
+      "sha256": "a26424b8ec11337ee8fe68ad0fc846a52587718cabbc734418fd29824aea08a6",
+      "fileName": "tafsir_bayan_46_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_46_v1.db.zip"
+    },
+    {
+      "id": "bayan_47",
+      "name": "مدارك التنزيل وحقائق التأويل للنسفي - النسفي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 53,
+      "sizeBytes": 6840,
+      "sha256": "5782097c2289a7929abb9ebdc87a687f9f34b7568e2478279a8cdda92543e7b4",
+      "fileName": "tafsir_bayan_47_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_47_v1.db.zip"
+    },
+    {
+      "id": "bayan_52",
+      "name": "التسهيل لعلوم التنزيل، لابن جزي - ابن جزي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 102,
+      "sizeBytes": 13725,
+      "sha256": "c0c1c70e26d106a275689682ff31e29dd11b7e2e6b041402aec4d9a602c7fba9",
+      "fileName": "tafsir_bayan_52_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_52_v1.db.zip"
+    },
+    {
+      "id": "bayan_53",
+      "name": "لباب التأويل في معاني التنزيل للخازن - الخازن",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 74,
+      "sizeBytes": 15866,
+      "sha256": "a303aad123147a8d3162938811e464a559ce920d67a1b3d7a9e4f06c3112c619",
+      "fileName": "tafsir_bayan_53_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_53_v1.db.zip"
+    },
+    {
+      "id": "bayan_54",
+      "name": "البحر المحيط لأبي حيان الأندلسي - أبو حيان",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 554,
+      "sizeBytes": 130936,
+      "sha256": "6f7653d162f73f3899587b8e9e922c8c42601623406b2e244687d0a4c1a6dc88",
+      "fileName": "tafsir_bayan_54_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_54_v1.db.zip"
+    },
+    {
+      "id": "bayan_55",
+      "name": "التفسير القيم لابن القيم - ابن القيم",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 128,
+      "sizeBytes": 77915,
+      "sha256": "394f7f1d319344d04aa2d1f1c64c984d1720433d2958113ba16712e7cdb65ee3",
+      "fileName": "tafsir_bayan_55_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_55_v1.db.zip"
+    },
+    {
+      "id": "bayan_58",
+      "name": "تفسير ابن عرفة - ابن عرفة",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 53,
+      "sizeBytes": 18913,
+      "sha256": "809b516d1f370233966ba35ee3099416a568dd040972d5ea64eaff7814e31574",
+      "fileName": "tafsir_bayan_58_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_58_v1.db.zip"
+    },
+    {
+      "id": "bayan_62",
+      "name": "الجواهر الحسان في تفسير القرآن للثعالبي - الثعالبي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 61,
+      "sizeBytes": 14496,
+      "sha256": "cdb416b6866ac3a7eb41055dae3886c9a8e0e91a6ebc8ef94d8d7fbc9109681a",
+      "fileName": "tafsir_bayan_62_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_62_v1.db.zip"
+    },
+    {
+      "id": "bayan_64",
+      "name": "نظم الدرر في تناسب الآيات و السور للبقاعي - البقاعي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4572,
+      "sizeBytes": 2468218,
+      "sha256": "5cc66b18ec90c27765281cc404807919e82f1ecd764c0d81822646423197b2c6",
+      "fileName": "tafsir_bayan_64_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_64_v1.db.zip"
+    },
+    {
+      "id": "bayan_66",
+      "name": "تفسير الجلالين للمحلي والسيوطي - تفسير الجلالين",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 14,
+      "sizeBytes": 2015,
+      "sha256": "b529f743ff7ae230fa421a96fd2f8b0cb780b8732a2bfc169080e7380dcce331",
+      "fileName": "tafsir_bayan_66_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_66_v1.db.zip"
+    },
+    {
+      "id": "bayan_69",
+      "name": "السراج المنير في تفسير القرآن الكريم للشربيني - الشربيني",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 46,
+      "sizeBytes": 9559,
+      "sha256": "a59f5a75fcd9971089a03d69d223ac99940516f5f55d0c455309c749c9ad2f87",
+      "fileName": "tafsir_bayan_69_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_69_v1.db.zip"
+    },
+    {
+      "id": "bayan_70",
+      "name": "إرشاد العقل السليم إلى مزايا الكتاب الكريم لأبي السعود - أبو السعود",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 559,
+      "sizeBytes": 180280,
+      "sha256": "82c490e790e63f1b987b92f424b03cc1f93cbd3b57e17d16e9bc2f4aad8a856c",
+      "fileName": "tafsir_bayan_70_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_70_v1.db.zip"
+    },
+    {
+      "id": "bayan_82",
+      "name": "فتح القدير الجامع بين فني الرواية والدراية من علم التفسير للشوكاني - الشوكاني",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 171,
+      "sizeBytes": 30055,
+      "sha256": "9420df1b1064d29c6190f471311bfd8d58384615afdebd159d5ac9ecfe924cb9",
+      "fileName": "tafsir_bayan_82_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_82_v1.db.zip"
+    },
+    {
+      "id": "bayan_84",
+      "name": "روح المعاني في تفسير القرآن والسبع المثاني للآلوسي - الآلوسي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 346,
+      "sizeBytes": 87133,
+      "sha256": "b34e290d192c75148f62fa032f1afdff8594b9daa1c1077a3af9fe3d96f10f64",
+      "fileName": "tafsir_bayan_84_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_84_v1.db.zip"
+    },
+    {
+      "id": "bayan_93",
+      "name": "تيسير التفسير لاطفيش - اطفيش - التيسير",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 99,
+      "sizeBytes": 17758,
+      "sha256": "54513b03af60b014b35769e9091a3aa44919cd929f26bc814c14cd64f28c44b5",
+      "fileName": "tafsir_bayan_93_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_93_v1.db.zip"
+    },
+    {
+      "id": "bayan_94",
+      "name": "محاسن التأويل للقاسمي - القاسمي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 249,
+      "sizeBytes": 59174,
+      "sha256": "9d849cef393539dbe01a83d0f0edaa972ddc14eb7b9bcfede2e1e5a0ee4dec10",
+      "fileName": "tafsir_bayan_94_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_94_v1.db.zip"
+    },
+    {
+      "id": "bayan_96",
+      "name": "تفسير المنار لرشيد رضا - رشيد رضا",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1410,
+      "sizeBytes": 2245762,
+      "sha256": "b6ea864f89d04e6c0b7475391565591492f75ae952b6a9b815b1bb43bfe4f77f",
+      "fileName": "tafsir_bayan_96_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_96_v1.db.zip"
+    },
+    {
+      "id": "bayan_97",
+      "name": "مجالس التذكير من كلام الحكيم الخبير لابن باديس - ابن باديس",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 41,
+      "sizeBytes": 34766,
+      "sha256": "9c8c3a0b2acc2b7ae324ce0a8b57c36cf36a724690e26fa77a83425679e64dba",
+      "fileName": "tafsir_bayan_97_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_97_v1.db.zip"
+    },
+    {
+      "id": "bayan_99",
+      "name": "تفسير القرآن للمراغي - المراغي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 266,
+      "sizeBytes": 60003,
+      "sha256": "46c01b8b28455547a497d27cd6f87d4908a6e6fc9e0ddbbc2a2036395d82ba33",
+      "fileName": "tafsir_bayan_99_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_99_v1.db.zip"
+    },
+    {
+      "id": "bayan_102",
+      "name": "تيسير الكريم المنان في تفسير القرآن لابن سعدي - ابن سعدي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1212,
+      "sizeBytes": 360295,
+      "sha256": "e2f47e7b016fe6853e12a3ae3dd58c620e072374b166770277eb597ab6945973",
+      "fileName": "tafsir_bayan_102_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_102_v1.db.zip"
+    },
+    {
+      "id": "bayan_104",
+      "name": "في ظلال القرآن لسيد قطب - سيد قطب",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4104,
+      "sizeBytes": 2439442,
+      "sha256": "cdbd4255ebded9c25e90eba4ef9c786962a18c78e9f3886972c109a7ec1b83db",
+      "fileName": "tafsir_bayan_104_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_104_v1.db.zip"
+    },
+    {
+      "id": "bayan_105",
+      "name": "التحرير والتنوير لابن عاشور - ابن عاشور",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4626,
+      "sizeBytes": 3354070,
+      "sha256": "3e216264f5b1bb781d603e468c0e392f4aec2889a85f4e8681f892341695a82a",
+      "fileName": "tafsir_bayan_105_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_105_v1.db.zip"
+    },
+    {
+      "id": "bayan_106",
+      "name": "أضواء البيان في تفسير القرآن بالقرآن للشنقيطي - الشنقيطي - أضواء البيان",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 83,
+      "sizeBytes": 26928,
+      "sha256": "95f3a26ba89b086f4d3860fa4f78de4e19e2247dd14e7fe30d9558c9b7651501",
+      "fileName": "tafsir_bayan_106_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_106_v1.db.zip"
+    },
+    {
+      "id": "bayan_107",
+      "name": "زهرة التفاسير - محمد أبو زهرة - أبو زهرة",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1353,
+      "sizeBytes": 850128,
+      "sha256": "9d1eac9b6407e58a70d9b10a8650f21918813499a9e56757b814476099d0c726",
+      "fileName": "tafsir_bayan_107_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_107_v1.db.zip"
+    },
+    {
+      "id": "bayan_110",
+      "name": "التفسير الحديث لدروزة - دروزة",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 197,
+      "sizeBytes": 95750,
+      "sha256": "4f9f18e59da48bb57de572e5942f1569aa586d38f1e1c3751bc8f6fb1079894e",
+      "fileName": "tafsir_bayan_110_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_110_v1.db.zip"
+    },
+    {
+      "id": "bayan_112",
+      "name": "التيسير في أحاديث التفسير للمكي الناصري - المكي الناصري",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 496,
+      "sizeBytes": 189673,
+      "sha256": "249ed35b9323141b06c3d6f679b93a9651a792421d36b6db1f69067fe99d7ed1",
+      "fileName": "tafsir_bayan_112_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_112_v1.db.zip"
+    },
+    {
+      "id": "bayan_131",
+      "name": "تفسير الشعراوي - الشعراوي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1719,
+      "sizeBytes": 1314772,
+      "sha256": "7086086fe60262c6b52d224fa7a447ca0ccdfa0c04ac5ded82e30c96f05720d4",
+      "fileName": "tafsir_bayan_131_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_131_v1.db.zip"
+    },
+    {
+      "id": "bayan_113",
+      "name": "تفسير القرآن الكريم لابن عثيمين - ابن عثيمين",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 57,
+      "sizeBytes": 21457,
+      "sha256": "7a3daf20394a192aa37ef69eca599b7b95d41746f943f3d63784792af58ebd1d",
+      "fileName": "tafsir_bayan_113_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_113_v1.db.zip"
+    },
+    {
+      "id": "bayan_151",
+      "name": "تفسير من و حي القرآن لحسين فضل الله - حسين فضل الله",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 1571,
+      "sizeBytes": 857354,
+      "sha256": "8abe2e28344a9a39dd05ca8e1a0acaea224aa65f68aec30d01fe49ba6dd1328d",
+      "fileName": "tafsir_bayan_151_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_151_v1.db.zip"
+    },
+    {
+      "id": "bayan_128",
+      "name": "أيسر التفاسير لكلام العلي الكبير للجزائري - أبوبكر الجزائري",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 111,
+      "sizeBytes": 13843,
+      "sha256": "84788c35bb83fead46a1ca49f85fd9f846afb4360e0284928eea531df52b9ec2",
+      "fileName": "tafsir_bayan_128_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_128_v1.db.zip"
+    },
+    {
+      "id": "bayan_171",
+      "name": "جواهر التفسير للخليلي - الخليلي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 21,
+      "sizeBytes": 17247,
+      "sha256": "c54a15c809c395145e98707ca337259b5acd310a71cce380d3f2f8c2ad1a6c25",
+      "fileName": "tafsir_bayan_171_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_171_v1.db.zip"
+    },
+    {
+      "id": "bayan_121",
+      "name": "التفسير الميسر لمجموعة من العلماء - التفسير الميسر",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 3,
+      "sizeBytes": 1432,
+      "sha256": "4c62d5f0f021c19c90ba423b7d3b80044fee6005e6cf4e6017d792d940a71f58",
+      "fileName": "tafsir_bayan_121_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_bayan_121_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_borhan",
+      "name": "البرهان في تفسير القرآن - السيد هاشم البحراني",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 6192,
+      "sizeBytes": 12174822,
+      "sha256": "32df76c63a9702fc3ed9fe9fa38e591a8fee70f332bad7caf6b66f0d8751178e",
+      "fileName": "tafsir_kitab_itrati_borhan_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_borhan_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_askari",
+      "name": "التفسير المنسوب للإمام العسكري",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 155,
+      "sizeBytes": 540789,
+      "sha256": "aed5a55576e1dec728f87854131bd1b3c01159da5918d25329dd11d5ca3712b0",
+      "fileName": "tafsir_kitab_itrati_askari_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_askari_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_aiashi",
+      "name": "تفسير العياشي - محمد بن مسعود العياشي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 2086,
+      "sizeBytes": 855777,
+      "sha256": "8f1ccf40144d2da65652e2e4ecb1c6ccc1877cbf93e3fa56638deb49854182fc",
+      "fileName": "tafsir_kitab_itrati_aiashi_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_aiashi_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_safi",
+      "name": "تفسير الصافي - الفيض الكاشاني",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 5724,
+      "sizeBytes": 1997013,
+      "sha256": "39cbf459fc48b21f496e3ec980d060b81c0331877e1114a03306fd87ef06eb33",
+      "fileName": "tafsir_kitab_itrati_safi_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_safi_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_qomi",
+      "name": "تفسير القمي - علي بن إبراهيم القمي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4023,
+      "sizeBytes": 1139146,
+      "sha256": "948ab2564bb536af52b6578be881cb47743ccd334a5f0b5e7faa2f163daf33d8",
+      "fileName": "tafsir_kitab_itrati_qomi_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_qomi_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_thumali",
+      "name": "تفسير القرآن الكريم لأبي حمزة الثمالي - أبو حمزة ثابت بن دينار الثمالي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 4,
+      "sizeBytes": 2912,
+      "sha256": "7fc36c748803d22b078db663ec98964fc50fbedbbada8ee978abdb924ae20a3b",
+      "fileName": "tafsir_kitab_itrati_thumali_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_thumali_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_kofi",
+      "name": "تفسير فرات الكوفي - فرات بن إبراهيم الكوفي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 18,
+      "sizeBytes": 13052,
+      "sha256": "7a791fcaa2126cda029a5eae84a36d5f05ef73c61b71ab7bc84c3cd37faaab06",
+      "fileName": "tafsir_kitab_itrati_kofi_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_kofi_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_thaqalain",
+      "name": "تفسير نور الثقلين - عبد علي بن جمعة الحويزي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 3441,
+      "sizeBytes": 3731678,
+      "sha256": "70d592e60e88819de401fa3ee2244ddd94fe92272d5034a3edf1512e057078e0",
+      "fileName": "tafsir_kitab_itrati_thaqalain_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_thaqalain_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_tavilayat",
+      "name": "تأويل الآيات",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 6,
+      "sizeBytes": 5675,
+      "sha256": "2e8c3b2f1ea90ea957d241c76593066cc26aacdd58b4804002d93581d16512aa",
+      "fileName": "tafsir_kitab_itrati_tavilayat_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_tavilayat_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_taiseer",
+      "name": "التيسير في التفسير للقرآن برواية أهل البيت - ماجد ناصر الزبيدي",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 26,
+      "sizeBytes": 11213,
+      "sha256": "ab96a16ed49dcbded5c83d71a4684134abfb8ada74f35855ddaae29a1562fdf4",
+      "fileName": "tafsir_kitab_itrati_taiseer_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_taiseer_v1.db.zip"
+    },
+    {
+      "id": "kitab_itrati_kanz",
+      "name": "كنز الدقائق",
+      "type": "tafsir",
+      "version": 1,
+      "rowCount": 3,
+      "sizeBytes": 5280,
+      "sha256": "0b105359fdb7674ce23c52f95a1c0a6e4157a48e13f0124084efb3f85b7bf63d",
+      "fileName": "tafsir_kitab_itrati_kanz_v1.db.zip",
+      "url": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/tafsir_kitab_itrati_kanz_v1.db.zip"
+    }
+  ],
+  "skipped": [
+    {
+      "id": "bayan_169",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_9",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_160",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_170",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_10",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_162",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_11",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_12",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_15",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_17",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_61",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_22",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_176",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_39",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_44",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_56",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_172",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_60",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_63",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_65",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_68",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_137",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_168",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_79",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_80",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_83",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_87",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_92",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_100",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_136",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_109",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_158",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_140",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_145",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_148",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_129",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_120",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_135",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_127",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "bayan_200",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_e9dc83214e5b6da7",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_03b13e9b277f2620",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_8357adab37106f96",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_194939fa460a43f4",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_d7c0beb474b72bbe",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_6b444a8a48ed54e4",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_2640ad69c0f6b9cb",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_0aa0e92cb1afb329",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_84301542170292d2",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_156b3dabec84aeba",
+      "reason": "no tafsir rows"
+    },
+    {
+      "id": "shia_lib_5a6ef71f1cc48ecf",
+      "reason": "no tafsir rows"
+    }
+  ],
+  "hosting": "raw-github-branch",
+  "branch": "packages-v1",
+  "manifestUrl": "https://raw.githubusercontent.com/aliabd97/qurann1/packages-v1/manifest.json"
+}
